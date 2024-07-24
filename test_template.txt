@@ -7,6 +7,8 @@ from allure_const import Feature, Priority, Story, MANUAL
 class Scenario(vedro.Scenario):
     subject = '$subject'
     """
-    $description
-    Ожидаемый результат: $expected_result
+        $description
+
+        Ожидаемый результат: $expected_result
     """
+    $params
