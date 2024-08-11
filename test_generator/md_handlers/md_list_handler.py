@@ -1,8 +1,10 @@
-from .md_handler import MdHandler
-from src.errors import ScenariosValidationError
-from src.scenario import TestScenario
-from src.suite import Suite
 from enum import Enum
+
+from test_generator.errors import ScenariosValidationError
+from test_generator.scenario import TestScenario
+from test_generator.suite import Suite
+
+from .md_handler import MdHandler
 
 
 class Priority(Enum):
@@ -96,4 +98,5 @@ class MdListHandler(MdHandler):
         priority = priority.strip()
         if priority not in [p.value for p in Priority]:
             raise ScenariosValidationError(f'Failed to parse line "{line}". '
-                                           f'Invalid priority "{priority}", available priorities are: {[p.value for p in Priority]}')
+                                           f'Invalid priority "{priority}", available priorities are: '
+                                           f'{[p.value for p in Priority]}')

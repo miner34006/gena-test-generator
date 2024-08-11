@@ -1,8 +1,9 @@
-from src.test_handlers.test_handler import TestHandler
-from src.scenario import TestScenario
-from src.suite import Suite
-from src.errors import ScenariosValidationError
 import os
+
+from test_generator.errors import ScenariosValidationError
+from test_generator.scenario import TestScenario
+from test_generator.suite import Suite
+from test_generator.test_handlers.test_handler import TestHandler
 
 
 class VedroHandler(TestHandler):
@@ -35,7 +36,6 @@ class VedroHandler(TestHandler):
         for scenario in suite.test_scenarios:
             test_path = os.path.join(dir_path, scenario.test_name)
             self.write_test(file_path=test_path, scenario=scenario, feature=suite.feature, story=suite.story)
-
 
     def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
         if not suite.feature:

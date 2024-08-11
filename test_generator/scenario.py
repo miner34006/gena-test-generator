@@ -19,11 +19,10 @@ class TestScenario:
 
     other_data: dict = field(default_factory=dict, repr=False)
 
-
     def update_subject(self) -> None:
-        append_str = f" (param = {{param}})"
+        append_str = " (param = {{param}})"
         if self.params and append_str not in self.subject:
-            self.subject += f" (param = {{param}})"
+            self.subject += " (param = {{param}})"
 
     def get_params_template(self, tab_size: int = 4) -> str:
         if not self.params:

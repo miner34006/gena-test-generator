@@ -4,16 +4,16 @@
 
 ### Параметры скрипта
 
-- `--file_path` - путь к файлу сценариев (по умолчанию равен scenarios.md в текущей рабочей директории);
-- `--template_path`- путь к файлу шаблону для тестов;
-- `--output_dir` - путь к директории куда сохранить созданные тесты (по умолчанию равен file_path).
+- `--scenarios-path` - путь к файлу сценариев (по умолчанию равен scenarios.md в текущей рабочей директории);
+- `--template-path`- путь к файлу шаблону для тестов;
+- `--target-dir` - путь к директории куда сохранить созданные тесты (по умолчанию равен file_path).
 
 ### Пример использования
 
-`python3 generate_scenarios.py --template_path=./test_template.txt --file_path=./scenarios_example/scenarios.md`
+`python3 generate_scenarios.py --template-path=./templates/test_template.txt --scenarios-path=./scenarios_example/scenarios.md`
 
 Можно прописать в alias и вызывать из директории в которой находится файл scenarios.md, тесты появятся в текущей директории
-`alias alias_name="python3 $PROEJCT_PATH/generate_scenarios.py --template_path=$PROEJCT_PATH/test_template.txt"`
+`alias alias_name="python3 $PROEJCT_PATH/generate_scenarios.py --template-path=$PROEJCT_PATH/templates/test_template.txt"`
 
 где PROEJCT_PATH - путь к проекту
 
