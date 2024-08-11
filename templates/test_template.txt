@@ -10,5 +10,16 @@ class Scenario(vedro.Scenario):
 
         Ожидаемый результат: $expected_result
     """
-    subject = '$subject'
-    $params
+    subject = '$subject' $params
+
+    def given_(self):
+        pass
+
+    def when_(self):
+        pass
+
+    def then_it_should_(self):
+        assert True
+
+    def and_it_should_(self):
+        assert True

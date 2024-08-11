@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from src.suite import Suite
+
+from test_generator.suite import Suite
 
 
 class MdHandler(ABC):
