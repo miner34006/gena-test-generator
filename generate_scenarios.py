@@ -81,6 +81,11 @@ def main(args: argparse.Namespace) -> None:
     else:
         create_tests_from_scenarios(args)
 
+    # dir = os.path.join(os.getcwd(), 'interfaces')
+    # swagger_handler = SwaggerYamlHandler()
+    # swagger_handler.write_swagger_interface(dir, 'social-graph-api.yaml', 'POST',
+    #                                         '/bonuses/vibes/buy_achieve/{achieve_id}')
+
 
 if __name__ == '__main__':
     args = parse_arguments()
