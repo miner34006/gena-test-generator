@@ -7,6 +7,6 @@ from .scenario import TestScenario
 class Suite:
     feature: str
     story: str
-    test_scenarios: list[TestScenario] = field(default_factory=list)
+    test_scenarios: list = field(default_factory=list)
 
     other_data: dict = field(default_factory=dict, repr=False)

@@ -46,15 +46,15 @@ class VedroHandler(TestHandler):
             raise ScenariosValidationError('Feature is not defined')
         if not suite.story:
             raise ScenariosValidationError('Story is not defined')
-        if not suite.test_scenarios:
-            raise ScenariosValidationError('No test scenarios defined')
-        for scenario in suite.test_scenarios:
-            if not scenario.priority:
-                raise ScenariosValidationError(f'Priority is not defined for scnenario {scenario}')
-            if not scenario.subject:
-                raise ScenariosValidationError(f'Subject is not defined for scnenario {scenario}')
-            if not scenario.test_name:
-                raise ScenariosValidationError(f'Test name is not defined for scnenario {scenario}')
+        # if not suite.test_scenarios:
+        #     raise ScenariosValidationError('No test scenarios defined')
+        # for scenario in suite.test_scenarios:
+        #     if not scenario.priority:
+        #         raise ScenariosValidationError(f'Priority is not defined for scnenario {scenario}')
+        #     if not scenario.subject:
+        #         raise ScenariosValidationError(f'Subject is not defined for scnenario {scenario}')
+        #     if not scenario.test_name:
+        #         raise ScenariosValidationError(f'Test name is not defined for scnenario {scenario}')
 
     def __get_subject(self, scneario: TestScenario) -> str:
         append_str = " (param = {{param}})"

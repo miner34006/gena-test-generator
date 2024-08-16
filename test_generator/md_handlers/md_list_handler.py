@@ -1,5 +1,5 @@
+import re
 from enum import Enum
-
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
@@ -19,6 +19,19 @@ class MdListHandler(MdHandler):
     def __is_positive_scenario(self, current_section: str) -> bool:
         return current_section == 'positive'
 
+    def __is_line_to_skip(self, line: str) -> bool:
+        pattern_table_header = re.compile(
+            r'\|\s*Приоритет\s*\|\s*Шаги\s*\|\s*Ожидаемый\s+результат\s*\|\s*Название\s+теста\s*\|'
+        )
+        pattern_table_separator = re.compile(r'\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|')
+
+        is_table_header = re.search(pattern_table_header, line)
+        is_table_separator = re.search(pattern_table_separator, line)
+        is_header = line.startswith('## Сценарии')
+        is_empty_line = not re.findall(u"\\S", line)
+
+        return is_table_header or is_table_separator or is_header or is_empty_line
+
     def __parse_line(self, line: str, current_section: str) -> TestScenario:
         priority, rest = line[1:].split(':', 1)
         priority = priority.strip()
@@ -36,6 +49,28 @@ class MdListHandler(MdHandler):
             params=[]
         )
 
+    def __parse_table_line(self, line: str, current_section: str) -> TestScenario:
+        pattern = re.compile(
+            r'\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*(?:\|\s*(.*?)\s*)?\|'
+        )
+        matches = re.findall(pattern, line)
+        if matches:
+            for match in matches:
+                priority, steps, expected_result, test_name = match
+                test_name = test_name if test_name else "Отсутствует"  # TODO generate ai name
+
+                return TestScenario(
+                    priority=priority,
+                    test_name=f"{test_name.strip().replace(' ', '_')}.py",
+                    subject=test_name.strip(),
+                    description=steps.strip(),
+                    expected_result=expected_result.strip(),
+                    is_positive=self.__is_positive_scenario(current_section),
+                    params=[]
+                )
+        else:
+            print("В таблице не найдены сценарии")
+
     def read_data(self, file_path: str, *args, **kwargs) -> Suite:
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
@@ -52,14 +87,18 @@ class MdListHandler(MdHandler):
                 feature = line.split('-')[1].strip()
             elif line.startswith('**Story**'):
                 story = line.split('-')[1].strip()
-            elif line.startswith('### позитивные'):
+            elif line.startswith('### Позитивные'):
                 current_section = 'positive'
-            elif line.startswith('### негативные'):
+            elif line.startswith('### Негативные'):
                 current_section = 'negative'
             elif line.startswith('-') and current_section:
                 test_scenarios.append(self.__parse_line(line, current_section))
             elif line.startswith('*') and current_section:
                 test_scenarios[-1].params.append(line.split('*')[1].strip())
+            elif self.__is_line_to_skip(line):
+                continue
+            else:
+                test_scenarios.append(self.__parse_table_line(line, current_section))
 
         return Suite(
             feature=feature,
@@ -78,10 +117,10 @@ class MdListHandler(MdHandler):
             raise ScenariosValidationError('No "**Feature**" section in file')
         if '**Story**' not in file_content:
             raise ScenariosValidationError('No "**Story**" section in file')
-        if '### позитивные' not in file_content:
-            raise ScenariosValidationError('No "### позитивные" section in file')
-        if '### негативные' not in file_content:
-            raise ScenariosValidationError('No "### негативные" section in file')
+        if '### Позитивные' not in file_content:
+            raise ScenariosValidationError('No "### Позитивные" section in file')
+        if '### Негативные' not in file_content:
+            raise ScenariosValidationError('No "### Негативные" section in file')
 
         lines = file_content.split('\n')
         for line in lines:
