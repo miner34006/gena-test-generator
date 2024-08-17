@@ -4,6 +4,8 @@
 
 **Feature** - UserFeature
 
+**Api method** - POST /path/to/endpoint
+
 ## Сценарии
 
 ### Позитивные

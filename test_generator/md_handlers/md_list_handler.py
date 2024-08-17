@@ -48,32 +48,29 @@ class MdListHandler(MdHandler):
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
 
-        lines = file_content.split('\n')
-        current_section = None
-        feature = ''
-        story = ''
+        suite = Suite.create_empty_suite()
 
-        test_scenarios = []
-        for line in lines:
+        current_section = None
+        for line in file_content.split('\n'):
             line = line.strip()
             if line.startswith('**Feature**'):
-                feature = line.split('-')[1].strip()
+                suite.feature = line.split('-')[1].strip()
             elif line.startswith('**Story**'):
-                story = line.split('-')[1].strip()
+                suite.story = line.split('-')[1].strip()
+            elif line.startswith('**Api method**'):
+                api_with_method = line.split('-')[1].strip()
+                suite.api_method = api_with_method.split(' ')[0]
+                suite.api_endpoint = api_with_method.split(' ')[1]
             elif line.startswith('### Позитивные'):
                 current_section = 'positive'
             elif line.startswith('### Негативные'):
                 current_section = 'negative'
             elif line.startswith('-') and current_section:
-                test_scenarios.append(self.__parse_line(line, current_section))
+                suite.test_scenarios.append(self.__parse_line(line, current_section))
             elif line.startswith('*') and current_section:
-                test_scenarios[-1].params.append(line.split('*')[1].strip())
+                suite.test_scenarios[-1].params.append(line.split('*')[1].strip())
 
-        return Suite(
-            feature=feature,
-            story=story,
-            test_scenarios=test_scenarios
-        )
+        return suite
 
     def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
@@ -118,11 +115,16 @@ class MdListHandler(MdHandler):
         if '### Негативные' not in file_content:
             raise ScenariosValidationError('No "### Негативные" section in file')
 
+        lines_with_scenarios_found = False
         lines = file_content.split('\n')
         for line in lines:
             line = line.strip()
             if line.startswith('-'):
+                lines_with_scenarios_found = True
                 self.__validate_line(line)
+
+        if not lines_with_scenarios_found:
+            raise ScenariosValidationError('No scenarios with expected format were found in file')
 
     def __validate_line(self, line: str) -> None:
         if line.count(':') > 2 or '->' not in line or line.count('->') > 1 or line.count(':') == 0:
