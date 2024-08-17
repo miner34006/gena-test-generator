@@ -42,17 +42,14 @@ class ScenarioVisitor(ast.NodeVisitor):
 
         decorator = decorator_list[0]
         for arg in decorator.args:
-            if isinstance(arg, ast.Attribute):
+            if not isinstance(arg, ast.Attribute):
                 continue
-            value = arg.value
-            if not isinstance(value, ast.Name):
-                continue
-
-            if value.id == 'Feature':
+            id = arg.value.id  # type: ignore
+            if id == 'Feature':
                 self.feature = arg.attr
-            elif value.id == 'Story':
+            elif id == 'Story':
                 self.story = arg.attr
-            elif value.id == 'Priority':
+            elif id == 'Priority':
                 self.scenario.priority = arg.attr
 
     def visit_class_body(self, body) -> None:
