@@ -6,8 +6,8 @@ from default_scenarios import DEFAULT_SUITE
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.suite import Suite
-from test_generator.test_handlers.vedro_handler import VedroHandler
 from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
+from test_generator.test_handlers.vedro_handler import VedroHandler
 
 
 def valid_md_format(md_format: str) -> str:
@@ -39,8 +39,8 @@ def parse_arguments():
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     parser.add_argument('--reversed', action='store_true', help='Create scenarios file from test files.'
                                                                 'Tests should have same story and feature.')
-    parser.add_argument('--no-interface', action='store_true', help='Generated without interface'
-                        , default=False)
+    parser.add_argument('--no-interface', action='store_true', help='Generated without interface',
+                        default=False)
     parser.add_argument('--interface-only', action='store_true', help='Generate interface only.')
     parser.add_argument('--yaml-path', type=str,
                         help='Path to the yaml file.'
@@ -140,7 +140,11 @@ if __name__ == '__main__':
     if args.reversed and args.generate:
         raise argparse.ArgumentTypeError('Use one argument: --generate OR --reversed')
 
-    if not args.template_path and not args.reversed and not args.generate:
-        raise argparse.ArgumentTypeError('--template-path is required for generating tests by scenarios file')
+    if not args.template_path and not args.reversed and not args.interface_only and not args.generate:
+        raise argparse.ArgumentTypeError('--template-path is required for generating tests')
+    if args.interface_only and not args.interface_path:
+        raise argparse.ArgumentTypeError('--interface-path is required for generating interface')
+    if args.interface_only and not args.yaml_path:
+        raise argparse.ArgumentTypeError('--yaml-path is required for generating interface')
 
     main(args)
