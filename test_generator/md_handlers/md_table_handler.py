@@ -13,7 +13,7 @@ class MdTableHandler(MdHandler):
 
     def __get_header_pattern(self) -> Pattern:
         """Паттерн для заголовка таблицы"""
-        return re.compile(r'\|\s*Приоритет\s*\|\s*Шаги\s*\|\s*Ожидаемый\s+результат\s*\|\s*Название\s+теста\s*\|')
+        return re.compile(r'\|\s*Приоритет\s*\|\s*Описание\s*\|\s*Ожидаемый\s+результат\s*\|\s*Название\s+теста\s*\|')
 
     def __get_separator_line_pattern(self) -> Pattern:
         """Паттерн для строки, разделяющей заголовок и строки таблицы"""
@@ -45,26 +45,23 @@ class MdTableHandler(MdHandler):
         if not rows:
             raise ScenariosValidationError('Invalid rows in table')
 
-        priority, steps, expected_result, test_name = rows[0]
+        priority, description, expected_result, test_name = rows[0]
 
-        if test_name:
-            test_name = test_name.replace('\\', '').strip()
-        else:
-            test_name = "Отсутствует"  # TODO generate ai name
+        subject = test_name.replace('\\', '').strip().lower() if test_name else ''
 
-        if not steps:
+        if not description:
             raise ScenariosValidationError('Invalid table in file')
 
-        steps = steps.replace('<br/>', '')
-        split_steps = steps.split('*')
-        params = [param.strip() for param in split_steps[1:]]
-        steps = split_steps[0]
+        description = description.replace('<br/>', '')
+        split_description = description.split('*')
+        params = [param.strip() for param in split_description[1:]]
+        description = split_description[0].strip()
 
         return TestScenario(
             priority=priority.strip(),
-            test_name=f"{test_name.replace(' ', '_')}.py",
-            subject=test_name,
-            description=steps.strip(),
+            test_name='',
+            subject=subject,
+            description=description,
             expected_result=expected_result.strip(),
             is_positive=self.__is_positive_scenario(current_section),
             params=params
