@@ -1,4 +1,5 @@
 import os
+import ast
 
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
@@ -11,13 +12,95 @@ PARAMS_TEMPLATE = """\n
         self.param = param"""
 
 
+class ScenarioVisitor(ast.NodeVisitor):
+    unknown = 'unknown'
+
+    def __init__(self) -> None:
+        self.feature = self.unknown
+        self.story = self.unknown
+
+        self.scenario = TestScenario.create_empty()
+        self.scenario.priority = self.unknown
+        self.scenario.description = self.unknown
+        self.scenario.subject = self.unknown
+        self.scenario.expected_result = self.unknown
+
+    def visit_ClassDef(self, node):
+        if any(self.is_scenario_base(base) for base in node.bases):
+            self.visit_scenario_decorators(node.decorator_list)
+            self.visit_class_body(node.body)
+
+    def is_scenario_base(self, base: ast.Name | ast.Attribute) -> bool:
+        if isinstance(base, ast.Name):
+            return base.id == 'Scenario'
+        elif isinstance(base, ast.Attribute):
+            return base.attr == 'Scenario'
+
+    def visit_scenario_decorators(self, decorator_list: list) -> None:
+        if not decorator_list:
+            return
+
+        decorator = decorator_list[0]
+        for arg in decorator.args:
+            if not isinstance(arg, ast.Attribute):
+                continue
+
+            if arg.value.id == 'Feature':
+                self.feature = arg.attr
+            elif arg.value.id == 'Story':
+                self.story = arg.attr
+            elif arg.value.id == 'Priority':
+                self.scenario.priority = arg.attr
+
+    def visit_class_body(self, body) -> None:
+        for item in body:
+            if isinstance(item, ast.Expr) and isinstance(item.value, ast.Str):
+                self.parse_docstring(item.value.s)
+            elif isinstance(item, ast.Assign) and item.targets[0].id == 'subject':
+                subject = item.value.s
+                self.scenario.subject = subject
+                self.scenario.test_name = VedroHandler.get_file_name(self.scenario)
+                self.scenario.is_positive = 'try to' not in subject.lower()
+            elif isinstance(item, ast.FunctionDef) and item.name == '__init__':
+                self.parse_test_params(item)
+
+    def parse_docstring(self, docstring: str) -> None:
+        for line in docstring.split('\n'):
+            if line.strip().startswith('Ожидаемый результат:'):
+                self.scenario.expected_result = line.split(':', 1)[1].strip()
+                break
+
+        expected_result = f'Ожидаемый результат: {self.scenario.expected_result}'
+        description = docstring.replace(expected_result, '').strip()
+        self.scenario.description = " ".join(description.split())
+
+    def parse_test_params(self, node) -> None:
+        for decorator in node.decorator_list:
+            if isinstance(decorator, ast.Call) and decorator.func.attr == 'params':
+                params = []
+                for arg in decorator.args:
+                    if isinstance(arg, ast.Constant):
+                        params.append(arg.value)
+                    if isinstance(arg, ast.Name):
+                        params.append(arg.id)
+                    if isinstance(arg, ast.Attribute):
+                        params.append(arg.attr)
+
+                self.scenario.params = params
+
+
 class VedroHandler(TestHandler):
-    def __init__(self, template: str) -> None:
+    def __init__(self, template: str = None) -> None:
         super().__init__()
         self.template = template
 
-    def read_test(self, file_path: str, *args, **kwargs) -> TestScenario:
-        raise NotImplementedError('method is not implemented')
+    def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario]:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            tree = ast.parse(file.read(), filename=file_path)
+
+        visitor = ScenarioVisitor()
+        visitor.visit(tree)
+        return visitor.feature, visitor.story, visitor.scenario
 
     def write_test(self, file_path: str, scenario: TestScenario, feature: str, story: str,
                    force: bool = False, *args, **kwargs) -> None:
@@ -51,9 +134,48 @@ class VedroHandler(TestHandler):
                 force=force
             )
 
-    def get_file_name(self, scenario: TestScenario) -> str:
+    @staticmethod
+    def get_file_name(scenario: TestScenario) -> str:
         file_name = scenario.test_name or f"{scenario.subject.strip().replace(' ', '_').replace('-', '_').lower()}.py"
         return file_name
+
+    def read_tests(self, target_dir: str, *args, **kwargs) -> Suite:
+        stories = set()
+        features = set()
+        scenarios = []
+
+        all_objects_in_dir = os.listdir(target_dir)
+        for object_path in all_objects_in_dir:
+            if os.path.isdir(os.path.join(target_dir, object_path)):
+                suite = self.read_tests(os.path.join(target_dir, object_path))
+                stories.add(suite.story)
+                features.add(suite.feature)
+                scenarios.extend(suite.test_scenarios)
+                continue
+
+            if not object_path.endswith('.py'):
+                continue
+
+            feature, story, scenario = self.read_test(os.path.join(target_dir, object_path))
+            scenarios.append(scenario)
+            stories.add(story)
+            features.add(feature)
+
+        if (len(features) > 2) or (len(features) == 2 and ScenarioVisitor.unknown not in features):
+            raise ScenariosValidationError(f"Multiple features detected: {features}, can't create a single scenarios file.")
+        if (len(stories) > 2) or (len(stories) == 2 and ScenarioVisitor.unknown not in stories):
+            raise ScenariosValidationError(f"Multiple stories detected: {stories}, can't create a single scenarios file.")
+        if len(scenarios) == 0:
+            raise ScenariosValidationError("No scenarios found in the target directory")
+
+        feature = ' & '.join(list(features))
+        story = ' & '.join(list(stories))
+
+        return Suite(
+            feature=feature,
+            story=story,
+            test_scenarios=scenarios
+        )
 
     def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
         if not suite.feature:
