@@ -50,29 +50,35 @@ class MdListHandler(MdHandler):
         )
 
     def __parse_table_line(self, line: str, current_section: str) -> TestScenario:
-        pattern = re.compile(
-            r'\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*(?:\|\s*(.*?)\s*)?\|'
-        )
+        params = list()
+        pattern = re.compile(r'\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*(?:\|\s*(.*?)\s*)?\|')
+
         rows = re.findall(pattern, line)
         if rows:
             for row in rows:
                 priority, steps, expected_result, test_name = row
                 if test_name:
-                    test_name = f"{test_name.strip().replace(' ', '_').replace("\\", "")}.py"
+                    test_name = test_name.replace('\\', '').strip()
                 else:
                     test_name = "Отсутствует"  # TODO generate ai name
 
+                if steps:
+                    steps = steps.replace('<br/>', '')
+                    split_steps = steps.split('*')
+                    params = [param.strip() for param in split_steps[1:]]
+                    steps = split_steps[0]
+
                 return TestScenario(
-                    priority=priority,
-                    test_name=test_name,
-                    subject=test_name.strip(),
+                    priority=priority.strip(),
+                    test_name=f"{test_name.replace(' ', '_')}.py",
+                    subject=test_name,
                     description=steps.strip(),
                     expected_result=expected_result.strip(),
                     is_positive=self.__is_positive_scenario(current_section),
-                    params=[]
+                    params=params
                 )
         else:
-            print("В таблице не найдены сценарии")
+            raise ScenariosValidationError('Invalid table in file')
 
     def read_data(self, file_path: str, *args, **kwargs) -> Suite:
         with open(file_path, 'r', encoding='utf-8') as file:
