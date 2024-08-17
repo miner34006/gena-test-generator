@@ -1,2 +1,2 @@
 from .swagger_handler import SwaggerHandler
-from .swagger_open_handler import SwaggerOpenHandler
+from .swagger_yaml_handler import SwaggerYamlHandler
