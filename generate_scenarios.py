@@ -2,7 +2,6 @@ import argparse
 import os
 from copy import deepcopy
 
-from test_generator.suite import Suite
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.test_handlers.vedro_handler import VedroHandler

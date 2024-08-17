@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
@@ -42,24 +42,26 @@ class ScenarioVisitor(ast.NodeVisitor):
 
         decorator = decorator_list[0]
         for arg in decorator.args:
-            if not isinstance(arg, ast.Attribute):
+            if isinstance(arg, ast.Attribute):
+                continue
+            value = arg.value
+            if not isinstance(value, ast.Name):
                 continue
 
-            if arg.value.id == 'Feature':
+            if value.id == 'Feature':
                 self.feature = arg.attr
-            elif arg.value.id == 'Story':
+            elif value.id == 'Story':
                 self.story = arg.attr
-            elif arg.value.id == 'Priority':
+            elif value.id == 'Priority':
                 self.scenario.priority = arg.attr
 
     def visit_class_body(self, body) -> None:
         for item in body:
             if isinstance(item, ast.Expr) and isinstance(item.value, ast.Str):
                 self.parse_docstring(item.value.s)
-            elif isinstance(item, ast.Assign) and item.targets[0].id == 'subject':
-                subject = item.value.s
+            elif isinstance(item, ast.Assign) and item.targets[0].id == 'subject':  # type: ignore
+                subject = item.value.s  # type: ignore
                 self.scenario.subject = subject
-                self.scenario.test_name = VedroHandler.get_file_name(self.scenario)
                 self.scenario.is_positive = 'try to' not in subject.lower()
             elif isinstance(item, ast.FunctionDef) and item.name == '__init__':
                 self.parse_test_params(item)
@@ -75,9 +77,9 @@ class ScenarioVisitor(ast.NodeVisitor):
         self.scenario.description = " ".join(description.split())
 
     def parse_test_params(self, node) -> None:
+        params = []
         for decorator in node.decorator_list:
-            if isinstance(decorator, ast.Call) and decorator.func.attr == 'params':
-                params = []
+            if isinstance(decorator, ast.Call) and decorator.func.attr == 'params':  # type: ignore
                 for arg in decorator.args:
                     if isinstance(arg, ast.Constant):
                         params.append(arg.value)
@@ -86,7 +88,7 @@ class ScenarioVisitor(ast.NodeVisitor):
                     if isinstance(arg, ast.Attribute):
                         params.append(arg.attr)
 
-                self.scenario.params = params
+        self.scenario.params = params
 
 
 class VedroHandler(TestHandler):
@@ -104,6 +106,9 @@ class VedroHandler(TestHandler):
 
     def write_test(self, file_path: str, scenario: TestScenario, feature: str, story: str,
                    force: bool = False, *args, **kwargs) -> None:
+        if not self.template:
+            raise RuntimeError('Template is not defined for writing tests')
+
         filled_template = self.template.replace('$feature', feature) \
                                        .replace('$story', story) \
                                        .replace('$priority', scenario.priority) \
@@ -162,9 +167,11 @@ class VedroHandler(TestHandler):
             features.add(feature)
 
         if (len(features) > 2) or (len(features) == 2 and ScenarioVisitor.unknown not in features):
-            raise ScenariosValidationError(f"Multiple features detected: {features}, can't create a single scenarios file.")
+            raise ScenariosValidationError(f"Multiple features detected: {features}, "
+                                           "can't create a single scenarios file.")
         if (len(stories) > 2) or (len(stories) == 2 and ScenarioVisitor.unknown not in stories):
-            raise ScenariosValidationError(f"Multiple stories detected: {stories}, can't create a single scenarios file.")
+            raise ScenariosValidationError(f"Multiple stories detected: {stories}, "
+                                           "can't create a single scenarios file.")
         if len(scenarios) == 0:
             raise ScenariosValidationError("No scenarios found in the target directory")
 

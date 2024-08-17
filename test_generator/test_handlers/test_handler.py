@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from test_generator.suite import Suite
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 

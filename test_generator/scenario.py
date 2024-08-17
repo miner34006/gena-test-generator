@@ -15,4 +15,11 @@ class TestScenario:
 
     @staticmethod
     def create_empty() -> 'TestScenario':
-        return TestScenario(priority='', test_name='', subject='', description='', expected_result='', is_positive=False)
+        return TestScenario(
+            priority='',
+            test_name='',
+            subject='',
+            description='',
+            expected_result='',
+            is_positive=False
+        )

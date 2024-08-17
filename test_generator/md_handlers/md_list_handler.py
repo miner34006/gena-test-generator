@@ -1,6 +1,6 @@
-from enum import Enum
-from dataclasses import asdict
 import json
+from dataclasses import asdict
+from enum import Enum
 
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
