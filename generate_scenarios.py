@@ -1,6 +1,8 @@
 import argparse
 import os
+from copy import deepcopy
 
+from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.test_handlers.vedro_handler import VedroHandler
 
@@ -23,11 +25,13 @@ def parse_arguments():
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
+    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
     parser.add_argument('--md-format', type=valid_md_format,
                         help=f"Name of the format to use. "
                              f"Available scenarios.md formats are: "
                              f"{','.join([f.format_name for f in get_md_handlers()])}",
                         default=get_default_md_handler().format_name)
+    parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     return parser.parse_args()
 
 
@@ -46,12 +50,17 @@ def main(args: argparse.Namespace) -> None:
     md_handler.validate_scenarios(scenarios_path)
     suite = md_handler.read_data(scenarios_path)
 
+    if args.ai:
+        key = os.environ.get('OPENAI_API_KEY', '')
+        base_url = os.environ.get('OPENAI_URL', '')
+        suite = ChatGPTHandler(key=key, base_url=base_url).update_suite(deepcopy(suite))
+
     with open(template_path, 'r', encoding='utf-8') as template_file:
         template_content = template_file.read()
 
     test_handler = VedroHandler(template_content)
     test_handler.validate_suite(suite)
-    test_handler.write_tests(dir_path=target_dir, suite=suite)
+    test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
 
 
 if __name__ == '__main__':

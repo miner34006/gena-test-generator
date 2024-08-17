@@ -41,7 +41,7 @@ class MdListHandler(MdHandler):
 
         return TestScenario(
             priority=priority,
-            test_name=f"{test_name.strip().replace(' ', '_')}.py",
+            test_name=f"{test_name.strip().replace(' ', '_')}.py".lower() if test_name.strip() else '',
             subject=test_name.strip(),
             description=description.strip().capitalize(),
             expected_result=expected_result.strip(),
