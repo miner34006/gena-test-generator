@@ -4,6 +4,8 @@ SCENARIOS_STR = """## Описание
 
 **Story** - {story}
 
+**API** - {api_method} {api_endpoint}
+
 ## Сценарии
 
 ### Позитивные

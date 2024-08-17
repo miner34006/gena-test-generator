@@ -2,6 +2,7 @@ import argparse
 import os
 from copy import deepcopy
 
+from default_scenarios import DEFAULT_SUITE
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.suite import Suite
@@ -27,6 +28,8 @@ def parse_arguments():
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
+    parser.add_argument('--generate', action='store_true',
+                        help="Generate new md-file with scenarios.", default=False)
     parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
     parser.add_argument('--md-format', type=valid_md_format,
                         help="Name of the format to use. "
@@ -101,8 +104,13 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     md_handler.write_data(scenarios_path, suite, force=args.force)
 
 
-def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
+def create_new_scenarios(args: argparse.Namespace) -> None:
+    scenarios_path, _, target_dir = get_script_paths(args)
+    md_handler = get_md_handler_by_name(args.md_format) if args.md_format else get_default_md_handler()
+    md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)
 
+
+def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
     yaml_path, interface_path = get_interfaces_path(args)
 
     method = suite.api_method
@@ -118,7 +126,9 @@ def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> No
 
 
 def main(args: argparse.Namespace) -> None:
-    if args.reversed:
+    if args.generate:
+        create_new_scenarios(args)
+    elif args.reversed:
         create_scenarios_from_tests(args)
     else:
         create_tests_from_scenarios(args)
@@ -127,7 +137,10 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == '__main__':
     args = parse_arguments()
 
-    if not args.template_path and not args.reversed:
-        raise argparse.ArgumentTypeError('--template-path is required for generating tests')
+    if args.reversed and args.generate:
+        raise argparse.ArgumentTypeError('Use one argument: --generate OR --reversed')
+
+    if not args.template_path and not args.reversed and not args.generate:
+        raise argparse.ArgumentTypeError('--template-path is required for generating tests by scenarios file')
 
     main(args)
