@@ -9,7 +9,7 @@ from .swagger_handler import SwaggerHandler
 
 
 class SocialInterfaceHandler(SwaggerHandler):
-    format_name = 'swagger_handler_format'
+    format_name = 'social_interface'
 
     yaml_file_path: str = None
 

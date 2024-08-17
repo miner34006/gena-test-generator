@@ -108,12 +108,10 @@ def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> No
     method = suite.api_method
     path = suite.api_endpoint
 
-    if not method or method is None:
-        return
-    if not path or path is None:
-        return
-
-    print(method, path)
+    if not method or method is None or method == 'unknown':
+        raise RuntimeError('Method is not defined')
+    if not path or path is None or path == 'unknown':
+        raise RuntimeError('Path is not defined')
 
     swagger_handler = SocialInterfaceHandler(yaml_path)
     swagger_handler.add_api_method_to_interface(interface_path, method, path)
