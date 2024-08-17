@@ -8,6 +8,7 @@ from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
+from .const import SCENARIOS_STR
 from .md_handler import MdHandler
 
 
@@ -103,11 +104,11 @@ class MdTableHandler(MdHandler):
 
     def __prepare_table_data_scenarios(self, scenarios: list[TestScenario], is_positive: bool) -> list[list]:
         return [
-            [scenario.priority, scenario.description, scenario.expected_result, scenario.test_name]
+            [scenario.priority, scenario.description, scenario.expected_result, scenario.subject]
             for scenario in scenarios if scenario.is_positive == is_positive
         ]
 
-    def write_data(self, file_path: str, data: Suite, force: bool, template_path: str, *args, **kwargs) -> None:
+    def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
             raise FileExistsError(f'File "{file_path}" already exists')
 
@@ -119,16 +120,15 @@ class MdTableHandler(MdHandler):
         positive_scenarios_table = tabulate(positive_scenarios, headers, tablefmt="github")
         negative_scenarios_table = tabulate(negative_scenarios, headers, tablefmt="github")
 
-        with open(template_path, 'r', encoding='utf-8') as template_file:
-            template_content = template_file.read()
-
-            filled_template = template_content.replace('{feature}', data.feature) \
-                .replace('{story}', data.story) \
-                .replace('{positive_scenarios_str}', positive_scenarios_table) \
-                .replace('{negative_scenarios_str}', negative_scenarios_table)
+        scenarios_str = SCENARIOS_STR.format(
+            feature=data.feature,
+            story=data.story,
+            positive_scenarios_str=positive_scenarios_table,
+            negative_scenarios_str=negative_scenarios_table
+        )
 
         with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(filled_template)
+            file.write(scenarios_str)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:

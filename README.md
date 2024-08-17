@@ -19,7 +19,7 @@
 `alias alias_name="python3 $PROEJCT_PATH/generate_scenarios.py --template-path=$PROEJCT_PATH/templates/test_template.txt"`
 
 Cгенерировать md-файл со сценариями по уже имеющимся тестам:
-`python generate_scenarios.py --template-path=./templates/scenarios_md_template.txt --scenarios-path=./scenarios_example/new_scenarios.md --md-format=md_list_format --reversed`
+`python generate_scenarios.py --scenarios-path=./scenarios_example/new_scenarios.md --md-format=md_list_format --reversed`
 
 где PROEJCT_PATH - путь к проекту
 

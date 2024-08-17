@@ -5,6 +5,7 @@ from test_generator.priority import Priority
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
+from .const import SCENARIOS_STR
 from .md_handler import MdHandler
 
 SCNEARIOS_STR = """## Описание
@@ -75,12 +76,9 @@ class MdListHandler(MdHandler):
             test_scenarios=test_scenarios
         )
 
-    def write_data(self, file_path: str, data: Suite, force: bool, template_path: str, *args, **kwargs) -> None:
+    def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
             raise FileExistsError(f'File "{file_path}" already exists')
-
-        with open(template_path, 'r', encoding='utf-8') as template_file:
-            template_content = template_file.read()
 
         with open(file_path, 'w', encoding='utf-8') as file:
             positive_scenarios = [scenario for scenario in data.test_scenarios if scenario.is_positive]
@@ -100,12 +98,13 @@ class MdListHandler(MdHandler):
                 for param in scenario.params:
                     negative_scenarios_str += '    * ' + param + '\n'
 
-            scenario_str = template_content.replace('{feature}', data.feature) \
-                .replace('{story}', data.story) \
-                .replace('{positive_scenarios_str}', positive_scenarios_str) \
-                .replace('{negative_scenarios_str}', negative_scenarios_str)
-
-            file.write(scenario_str)
+            scenarios_str = SCENARIOS_STR.format(
+                feature=data.feature,
+                story=data.story,
+                positive_scenarios_str=positive_scenarios_str,
+                negative_scenarios_str=negative_scenarios_str
+            )
+            file.write(scenarios_str)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:

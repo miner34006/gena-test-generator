@@ -1,4 +1,4 @@
-## Описание
+SCENARIOS_STR = """## Описание
 
 **Feature** - {feature}
 
@@ -10,5 +10,4 @@
 {positive_scenarios_str}
 
 ### Негативные
-{negative_scenarios_str}
-
+{negative_scenarios_str}"""
