@@ -78,7 +78,7 @@ class MdTableHandler(MdHandler):
             line = line.strip()
             if line.startswith('**Feature**'):
                 suite.feature = line.split('-')[1].strip()
-            elif line.startswith('**Api method**'):
+            elif line.startswith('**API**'):
                 api_with_method = line.split('-')[1].strip()
                 suite.api_method = api_with_method.split(' ')[0]
                 suite.api_endpoint = api_with_method.split(' ')[1]

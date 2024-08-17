@@ -20,7 +20,7 @@ def parse_arguments():
         description='Parse scenario file and generate scenario files from template.')
     parser.add_argument('--scenarios-path', type=str, default='scenarios.md',
                         help='Path to the scenario file. Defaults to scenarios.md in the current directory.')
-    parser.add_argument('--template-path', type=str, required=True,
+    parser.add_argument('--template-path', type=str, required=False,
                         help='Path to the template file.')
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
@@ -84,4 +84,8 @@ def main(args: argparse.Namespace) -> None:
 
 if __name__ == '__main__':
     args = parse_arguments()
+
+    if not args.template_path and not args.reversed:
+        raise argparse.ArgumentTypeError('--template-path is required for generating tests')
+
     main(args)

@@ -181,7 +181,9 @@ class VedroHandler(TestHandler):
         return Suite(
             feature=feature,
             story=story,
-            test_scenarios=scenarios
+            test_scenarios=scenarios,
+            api_endpoint=ScenarioVisitor.unknown,
+            api_method=ScenarioVisitor.unknown
         )
 
     def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
