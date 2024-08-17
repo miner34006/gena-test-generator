@@ -71,32 +71,29 @@ class MdTableHandler(MdHandler):
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
 
-        lines = file_content.split('\n')
-        current_section = 'None'
-        feature = ''
-        story = ''
+        suite = Suite.create_empty_suite()
 
-        test_scenarios = []
-        for line in lines:
+        current_section = None
+        for line in file_content.split('\n'):
             line = line.strip()
             if line.startswith('**Feature**'):
-                feature = line.split('-')[1].strip()
+                suite.feature = line.split('-')[1].strip()
+            elif line.startswith('**API**'):
+                api_with_method = line.split('-')[1].strip()
+                suite.api_method = api_with_method.split(' ')[0]
+                suite.api_endpoint = api_with_method.split(' ')[1]
             elif line.startswith('**Story**'):
-                story = line.split('-')[1].strip()
+                suite.story = line.split('-')[1].strip()
             elif line.startswith('### Позитивные'):
                 current_section = 'positive'
             elif line.startswith('### Негативные'):
                 current_section = 'negative'
             elif self.__is_line_to_skip(line):
                 continue
-            else:
-                test_scenarios.append(self.__parse_table_line(line, current_section))
+            elif current_section:
+                suite.test_scenarios.append(self.__parse_table_line(line, current_section))
 
-        return Suite(
-            feature=feature,
-            story=story,
-            test_scenarios=test_scenarios
-        )
+        return suite
 
     def write_data(self, file_path: str, data: Suite, *args, **kwargs) -> None:
         raise NotImplementedError('method is not implemented')
