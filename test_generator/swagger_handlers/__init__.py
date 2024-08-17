@@ -1,2 +1,2 @@
 from .swagger_handler import SwaggerHandler
-from .swagger_yaml_handler import SwaggerYamlHandler
+from .social_interface_handler import SocialInterfaceHandler
