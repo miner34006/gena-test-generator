@@ -54,20 +54,25 @@ def get_script_paths(args: argparse.Namespace) -> tuple:
     scenarios_path = os.path.join(current_dir, args.scenarios_path)
     target_dir = os.path.join(current_dir, args.target_dir) \
         if args.target_dir else os.path.dirname(scenarios_path)
+    return scenarios_path, args.template_path, target_dir
+
+
+def get_interfaces_path(args: argparse.Namespace) -> tuple:
+    current_dir = os.getcwd()
     yaml_path = os.path.join(current_dir, args.yaml_path)
     interface_path = os.path.join(current_dir, args.interface_path)
-    return scenarios_path, args.template_path, target_dir, yaml_path, interface_path
+    return yaml_path, interface_path
 
 
 def create_tests_from_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path, template_path, target_dir, yaml_path, interface_path = get_script_paths(args)
+    scenarios_path, template_path, target_dir = get_script_paths(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.validate_scenarios(scenarios_path)
     suite = md_handler.read_data(scenarios_path)
 
     if args.interface_only:
-        create_api_method_to_interface(suite, yaml_path, interface_path)
+        create_api_method_to_interface(suite, args)
         return
 
     if args.ai:
@@ -83,7 +88,7 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
 
     if not args.no_interface:
-        create_api_method_to_interface(suite, yaml_path, interface_path)
+        create_api_method_to_interface(suite, args)
 
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
@@ -96,10 +101,22 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     md_handler.write_data(scenarios_path, suite, force=args.force)
 
 
-def create_api_method_to_interface(suite: Suite, yaml_path, interface_path) -> None:
+def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
+
+    yaml_path, interface_path = get_interfaces_path(args)
+
+    method = suite.api_method
+    path = suite.api_endpoint
+
+    if not method or method is None:
+        return
+    if not path or path is None:
+        return
+
+    print(method, path)
 
     swagger_handler = SocialInterfaceHandler(yaml_path)
-    swagger_handler.add_api_method_to_interface(interface_path, suite.method_route, suite.path_route)
+    swagger_handler.add_api_method_to_interface(interface_path, method, path)
 
 
 def main(args: argparse.Namespace) -> None:
