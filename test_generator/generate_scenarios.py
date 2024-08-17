@@ -50,6 +50,9 @@ def parse_arguments():
                         help='Path to the swagger yaml file. Used for interface generating.')
     parser.add_argument('--interface-path', type=str,
                         help='Path to the interface file. Used for interface generating.')
+    parser.add_argument('--schemas-path', type=str,
+                        help='Path to directory containing schemas.'
+                             'For generate schemas automatically')
 
     return parser.parse_args()
 
