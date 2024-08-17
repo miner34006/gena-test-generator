@@ -17,7 +17,7 @@ class SocialInterfaceHandler(SwaggerHandler):
         super().__init__()
         self.__set_yaml_file(yaml_file_path)
 
-    def write_swagger_interface(self, interface_file_path: str, method: str, path: str) -> None:
+    def add_api_method_to_interface(self, interface_file_path: str, method: str, path: str) -> None:
         if not os.path.isfile(interface_file_path):
             raise RuntimeError(f"'{interface_file_path}' doesn't exist")
         print("Generating interfaces from given OpenApi...")
