@@ -3,3 +3,7 @@ isort==5.11.5
 mypy==1.10.0
 twine==5.0.0
 openai==1.40.8
+
+schemax==0.3.0
+schemax-openapi==0.0.4
+PyYAML==6.0.2

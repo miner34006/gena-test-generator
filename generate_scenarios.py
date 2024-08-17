@@ -4,7 +4,9 @@ from copy import deepcopy
 
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
+from test_generator.suite import Suite
 from test_generator.test_handlers.vedro_handler import VedroHandler
+from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 
 
 def valid_md_format(md_format: str) -> str:
@@ -34,6 +36,16 @@ def parse_arguments():
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     parser.add_argument('--reversed', action='store_true', help='Create scenarios file from test files.'
                                                                 'Tests should have same story and feature.')
+    parser.add_argument('--no-interface', action='store_true', help='Generated without interface'
+                        , default=False)
+    parser.add_argument('--interface-only', action='store_true', help='Generate interface only.')
+    parser.add_argument('--yaml-path', type=str,
+                        help='Path to the yaml file.'
+                             'For generate interface or schema automatically')
+    parser.add_argument('--interface-path', type=str,
+                        help='Path to the interface file. '
+                             'For generate interface automatically')
+
     return parser.parse_args()
 
 
@@ -45,12 +57,23 @@ def get_script_paths(args: argparse.Namespace) -> tuple:
     return scenarios_path, args.template_path, target_dir
 
 
+def get_interfaces_path(args: argparse.Namespace) -> tuple:
+    current_dir = os.getcwd()
+    yaml_path = os.path.join(current_dir, args.yaml_path)
+    interface_path = os.path.join(current_dir, args.interface_path)
+    return yaml_path, interface_path
+
+
 def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     scenarios_path, template_path, target_dir = get_script_paths(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.validate_scenarios(scenarios_path)
     suite = md_handler.read_data(scenarios_path)
+
+    if args.interface_only:
+        create_api_method_to_interface(suite, args)
+        return
 
     if args.ai:
         key = os.environ.get('OPENAI_API_KEY', '')
@@ -64,6 +87,9 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     test_handler.validate_suite(suite)
     test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
 
+    if not args.no_interface:
+        create_api_method_to_interface(suite, args)
+
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     scenarios_path, _, target_dir = get_script_paths(args)
@@ -73,6 +99,22 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, suite, force=args.force)
+
+
+def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
+
+    yaml_path, interface_path = get_interfaces_path(args)
+
+    method = suite.api_method
+    path = suite.api_endpoint
+
+    if not method or method is None or method == 'unknown':
+        raise RuntimeError('Method is not defined')
+    if not path or path is None or path == 'unknown':
+        raise RuntimeError('Path is not defined')
+
+    swagger_handler = SocialInterfaceHandler(yaml_path)
+    swagger_handler.add_api_method_to_interface(interface_path, method, path)
 
 
 def main(args: argparse.Namespace) -> None:

@@ -1,1 +1,5 @@
 openai==1.40.8
+
+schemax==0.3.0
+schemax-openapi==0.0.4
+PyYAML==6.0.2
