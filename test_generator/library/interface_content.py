@@ -10,31 +10,35 @@ class InterfaceContent(str, Enum):
         params = {
             **self._actor.params,$queries
         }
+
         raise NotImplementedError('Need change parameters/body in new generated interface')
         return await API.get(url, params=params, headers=self._actor.metadata)
-        """
+"""
+
     POST = """
     async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
             **self._actor.params,$queries
         }
-        
+
         data = {
             # CHANGE_ME_TO_NEED_BODY
         }
         raise NotImplementedError('Need change parameters/body in new generated interface')
         return await API.post(url, params=params, data=data, headers=self._actor.metadata)
-        """
+"""
+
     DELETE = """
     async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
             **self._actor.params,$queries
         }
+
         raise NotImplementedError('Need change parameters/body in new generated interface')
         return await API.delete(url, params=params, headers=self._actor.metadata)
-        """
+"""
 
     @classmethod
     def fill_template(cls, schema_data: SchemaData) -> str:
@@ -45,7 +49,7 @@ class InterfaceContent(str, Enum):
                 func = InterfaceContent.POST
             case 'DELETE':
                 func = InterfaceContent.DELETE
-            case default:
+            case _:
                 raise RuntimeError(f'{schema_data.http_method} is not supported')
 
         queries = ""
