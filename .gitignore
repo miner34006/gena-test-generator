@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 # project specific
-scenarios_example/*.py
+*.py

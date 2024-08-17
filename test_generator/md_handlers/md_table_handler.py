@@ -121,7 +121,9 @@ class MdTableHandler(MdHandler):
             feature=data.feature,
             story=data.story,
             positive_scenarios_str=positive_scenarios_table,
-            negative_scenarios_str=negative_scenarios_table
+            negative_scenarios_str=negative_scenarios_table,
+            api_method=data.api_method,
+            api_endpoint=data.api_endpoint,
         )
 
         with open(file_path, 'w', encoding='utf-8') as file:
