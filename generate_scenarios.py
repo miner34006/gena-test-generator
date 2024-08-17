@@ -66,13 +66,13 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
 
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
-    scenarios_path, _, target_dir = get_script_paths(args)
+    scenarios_path, template_path, target_dir = get_script_paths(args)
 
     test_handler = VedroHandler()
     suite = test_handler.read_tests(target_dir)
 
     md_handler = get_md_handler_by_name(args.md_format)
-    md_handler.write_data(scenarios_path, suite, force=args.force)
+    md_handler.write_data(scenarios_path, suite, force=args.force, template_path=template_path)
 
 
 def main(args: argparse.Namespace) -> None:

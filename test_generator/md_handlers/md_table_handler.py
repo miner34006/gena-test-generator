@@ -1,5 +1,8 @@
+import os
 import re
 from re import Pattern
+
+from tabulate import tabulate
 
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
@@ -98,8 +101,34 @@ class MdTableHandler(MdHandler):
             test_scenarios=test_scenarios
         )
 
-    def write_data(self, file_path: str, data: Suite, *args, **kwargs) -> None:
-        raise NotImplementedError('method is not implemented')
+    def __prepare_table_data_scenarios(self, scenarios: list[TestScenario], is_positive: bool) -> list[list]:
+        return [
+            [scenario.priority, scenario.description, scenario.expected_result, scenario.test_name]
+            for scenario in scenarios if scenario.is_positive == is_positive
+        ]
+
+    def write_data(self, file_path: str, data: Suite, force: bool, template_path: str, *args, **kwargs) -> None:
+        if not force and os.path.exists(file_path):
+            raise FileExistsError(f'File "{file_path}" already exists')
+
+        headers = ["Приоритет", "Описание", "Ожидаемый результат", "Название теста"]
+
+        positive_scenarios = self.__prepare_table_data_scenarios(data.test_scenarios, True)
+        negative_scenarios = self.__prepare_table_data_scenarios(data.test_scenarios, False)
+
+        positive_scenarios_table = tabulate(positive_scenarios, headers, tablefmt="github")
+        negative_scenarios_table = tabulate(negative_scenarios, headers, tablefmt="github")
+
+        with open(template_path, 'r', encoding='utf-8') as template_file:
+            template_content = template_file.read()
+
+            filled_template = template_content.replace('{feature}', data.feature) \
+                .replace('{story}', data.story) \
+                .replace('{positive_scenarios_str}', positive_scenarios_table) \
+                .replace('{negative_scenarios_str}', negative_scenarios_table)
+
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(filled_template)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:

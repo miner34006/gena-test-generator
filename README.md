@@ -9,6 +9,7 @@
 - `--target-dir` - путь к директории куда сохранить созданные тесты (по умолчанию равен file_path);
 - `--ai` - использовать ChatGPT для генерации subject и имен файлов тестов (в переменных окружения должны быть определены переменные `OPENAI_API_KEY` & `OPENAI_URL`);
 - `--force` - пересоздать файлы тестов даже если они уже существуют в `target-dir` директории.
+- `--reversed` - сгенерировать md-файл со сценариями по уже имеющимся тестам.
 
 ### Пример использования
 
@@ -16,6 +17,9 @@
 
 Можно прописать в alias и вызывать из директории в которой находится файл scenarios.md, тесты появятся в текущей директории
 `alias alias_name="python3 $PROEJCT_PATH/generate_scenarios.py --template-path=$PROEJCT_PATH/templates/test_template.txt"`
+
+Cгенерировать md-файл со сценариями по уже имеющимся тестам:
+`python generate_scenarios.py --template-path=./templates/scenarios_md_template.txt --scenarios-path=./scenarios_example/new_scenarios.md --md-format=md_list_format --reversed`
 
 где PROEJCT_PATH - путь к проекту
 
