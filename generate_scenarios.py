@@ -27,9 +27,9 @@ def parse_arguments():
                              'Defaults to the directory of scenarios-path.')
     parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
     parser.add_argument('--md-format', type=valid_md_format,
-                        help=f"Name of the format to use. "
-                             f"Available scenarios.md formats are: "
-                             f"{','.join([f.format_name for f in get_md_handlers()])}",
+                        help="Name of the format to use. "
+                             "Available scenarios.md formats are: "
+                             f"{', '.join([f.format_name for f in get_md_handlers()])}",
                         default=get_default_md_handler().format_name)
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     return parser.parse_args()
