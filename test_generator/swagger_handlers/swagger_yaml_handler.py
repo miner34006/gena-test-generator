@@ -46,13 +46,12 @@ class SwaggerYamlHandler(SwaggerHandler):
                 raise RuntimeError(f'{schema_data.http_method} is not supported')
 
     def write_swagger_interface(self, method: str, path: str) -> None:
-        interface_file_path = self.interface_file_path
         print("Generating interfaces from given OpenApi...")
 
         data_list = self.read_swagger_data()
         data = self.__filter_schema_data_by_path_and_method(data_list, method, path)
 
-        with open(interface_file_path, 'a', encoding='utf-8') as file:
+        with open(self.interface_file_path, 'a', encoding='utf-8') as file:
             file.write(self.fill_interface_template(data))
 
         print(f"Successfully interface generated for {method} {path}")
