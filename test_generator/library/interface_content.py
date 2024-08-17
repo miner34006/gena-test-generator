@@ -5,7 +5,7 @@ from schemax_openapi import SchemaData
 
 class InterfaceContent(str, Enum):
     GET = """
-    async def $name(self, $params) -> ClientResponse:
+    async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
             **self._actor.params,
@@ -15,7 +15,7 @@ class InterfaceContent(str, Enum):
         return await API.get(url, params=params, headers=self._actor.metadata)
         """
     POST = """
-    async def $name(self, $params) -> ClientResponse:
+    async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
             **self._actor.params,
@@ -29,7 +29,7 @@ class InterfaceContent(str, Enum):
         return await API.post(url, params=params, data=data, headers=self._actor.metadata)
         """
     DELETE = """
-    async def $name(self, $params) -> ClientResponse:
+    async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
             **self._actor.params,
@@ -50,6 +50,11 @@ class InterfaceContent(str, Enum):
                 func = InterfaceContent.DELETE
             case default:
                 raise RuntimeError(f'{schema_data.http_method} is not supported')
+        params = schema_data.args + schema_data.queries
+        if params:
+            params_data = ', ' + ', '.join(params)
+        else:
+            params_data = ''
         return (func.replace('$path', schema_data.path)
                     .replace('$name', schema_data.interface_method)
-                    .replace('$params', ', '.join(schema_data.args)))
+                    .replace('$params', params_data))

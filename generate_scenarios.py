@@ -4,7 +4,9 @@ from copy import deepcopy
 
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
+from test_generator.suite import Suite
 from test_generator.test_handlers.vedro_handler import VedroHandler
+from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 
 
 def valid_md_format(md_format: str) -> str:
@@ -34,6 +36,9 @@ def parse_arguments():
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     parser.add_argument('--reversed', action='store_true', help='Create scenarios file from test files.'
                                                                 'Tests should have same story and feature.')
+    parser.add_argument('--no-interface', action='store_true', help='Generated without interface'
+                        , default=False)
+    parser.add_argument('--interface-only', action='store_true', help='Generate interface only.')
     parser.add_argument('--yaml-path', type=str,
                         help='Path to the yaml file.'
                              'For generate interface or schema automatically')
@@ -49,15 +54,21 @@ def get_script_paths(args: argparse.Namespace) -> tuple:
     scenarios_path = os.path.join(current_dir, args.scenarios_path)
     target_dir = os.path.join(current_dir, args.target_dir) \
         if args.target_dir else os.path.dirname(scenarios_path)
-    return scenarios_path, args.template_path, target_dir
+    yaml_path = os.path.join(current_dir, args.yaml_path)
+    interface_path = os.path.join(current_dir, args.interface_path)
+    return scenarios_path, args.template_path, target_dir, yaml_path, interface_path
 
 
 def create_tests_from_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path, template_path, target_dir = get_script_paths(args)
+    scenarios_path, template_path, target_dir, yaml_path, interface_path = get_script_paths(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.validate_scenarios(scenarios_path)
     suite = md_handler.read_data(scenarios_path)
+
+    if args.interface_only:
+        create_api_method_to_interface(suite, yaml_path, interface_path)
+        return
 
     if args.ai:
         key = os.environ.get('OPENAI_API_KEY', '')
@@ -71,6 +82,9 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     test_handler.validate_suite(suite)
     test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
 
+    if not args.no_interface:
+        create_api_method_to_interface(suite, yaml_path, interface_path)
+
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     scenarios_path, _, target_dir = get_script_paths(args)
@@ -82,19 +96,17 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     md_handler.write_data(scenarios_path, suite, force=args.force)
 
 
+def create_api_method_to_interface(suite: Suite, yaml_path, interface_path) -> None:
+
+    swagger_handler = SocialInterfaceHandler(yaml_path)
+    swagger_handler.add_api_method_to_interface(interface_path, suite.method_route, suite.path_route)
+
+
 def main(args: argparse.Namespace) -> None:
     if args.reversed:
         create_scenarios_from_tests(args)
     else:
         create_tests_from_scenarios(args)
-
-    # Пример вызова
-    # yaml_file_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/templates/bonuses-api.yaml'
-    # interface_file_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/interfaces/BonusesApi.py'
-    # schemas_dir_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/schemas'
-    #
-    # swagger_handler = SwaggerYamlHandler(yaml_file_path, interface_file_path, schemas_dir_path)
-    # swagger_handler.write_swagger_interface('POST', '/bonuses/vibes/buy_achieve/{achieve_id}')
 
 
 if __name__ == '__main__':
