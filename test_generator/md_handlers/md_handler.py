@@ -14,7 +14,7 @@ class MdHandler(ABC):
         ...
 
     @abstractmethod
-    def write_data(self, file_path: str, data: Suite, *args, **kwargs) -> None:
+    def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         """
         Записываем list сценариев в файл и всю meta информацию
         """

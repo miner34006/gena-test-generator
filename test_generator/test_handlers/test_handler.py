@@ -8,9 +8,16 @@ class TestHandler(ABC):
     name = 'AbstractTestHandler'
 
     @abstractmethod
-    def read_test(self, file_path: str, *args, **kwargs) -> TestScenario:
+    def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario]:
         """
-        Читаем тест в сценарий
+        Читаем тест в объект сценария
+        """
+        ...
+
+    @abstractmethod
+    def read_tests(self, target_dir: str, *args, **kwargs) -> Suite:
+        """
+        Читаем тесты в съют
         """
         ...
 
