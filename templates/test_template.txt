@@ -1,6 +1,7 @@
 import vedro
 from vedro_allure_reporter import allure_labels
-from allure_const import Feature, Priority, Story, MANUAL
+
+from allure_const import MANUAL, Feature, Priority, Story
 
 
 @allure_labels(Feature.$feature, Story.$story, Priority.$priority, MANUAL)
@@ -10,7 +11,7 @@ class Scenario(vedro.Scenario):
 
         Ожидаемый результат: $expected_result
     """
-    subject = '$subject' $params
+    subject = '$subject'$params
 
     def given_(self):
         pass
