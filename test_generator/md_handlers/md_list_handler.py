@@ -1,7 +1,7 @@
 import os
-from enum import Enum
 
 from test_generator.errors import ScenariosValidationError
+from test_generator.priority import Priority
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
@@ -19,12 +19,6 @@ SCNEARIOS_STR = """## Описание
 {positive_scenarios_str}
 ### Негативные
 {negative_scenarios_str}"""
-
-
-class Priority(Enum):
-    P0 = 'P0'
-    P1 = 'P1'
-    P2 = 'P2'
 
 
 class MdListHandler(MdHandler):
@@ -91,17 +85,17 @@ class MdListHandler(MdHandler):
 
             positive_scenarios_str = ''
             for scenario in positive_scenarios:
-                positive_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} '\
+                positive_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} ' \
                                           f'-> {scenario.expected_result}\n'
                 for param in scenario.params:
-                    positive_scenarios_str += f'    * {param}\n'
+                    positive_scenarios_str += '    * ' + param + '\n'
 
             negative_scenarios_str = ''
             for scenario in negative_scenarios:
-                negative_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} '\
+                negative_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} ' \
                                           f'-> {scenario.expected_result}\n'
                 for param in scenario.params:
-                    negative_scenarios_str += f'    * {param}\n'
+                    negative_scenarios_str += '    * ' + param + '\n'
 
             scenario_str = SCNEARIOS_STR.format(
                 feature=data.feature,
@@ -133,8 +127,8 @@ class MdListHandler(MdHandler):
     def __validate_line(self, line: str) -> None:
         if line.count(':') > 2 or '->' not in line or line.count('->') > 1 or line.count(':') == 0:
             raise ScenariosValidationError(f'Failed to parse line "{line}". '
-                                           f'Invalid line format, line should be like:'
-                                           f'`- P(0/1/2): [Test name]: Description -> Expected result`')
+                                           'Invalid line format, line should be like:'
+                                           '`- P(0/1/2): [Test name]: Description -> Expected result`')
         priority, _ = line[1:].split(':', 1)
         priority = priority.strip()
         if priority not in [p.value for p in Priority]:
