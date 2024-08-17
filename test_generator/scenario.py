@@ -9,6 +9,6 @@ class TestScenario:
     description: str = field(repr=False)
     expected_result: str
     is_positive: bool = field(repr=False)
-    params: list = field(default_factory=list, repr=False)
+    params: list[str] = field(default_factory=list, repr=False)
 
     other_data: dict = field(default_factory=dict, repr=False)

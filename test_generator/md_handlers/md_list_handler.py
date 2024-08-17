@@ -53,15 +53,18 @@ class MdListHandler(MdHandler):
         pattern = re.compile(
             r'\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*(?:\|\s*(.*?)\s*)?\|'
         )
-        matches = re.findall(pattern, line)
-        if matches:
-            for match in matches:
-                priority, steps, expected_result, test_name = match
-                test_name = test_name if test_name else "Отсутствует"  # TODO generate ai name
+        rows = re.findall(pattern, line)
+        if rows:
+            for row in rows:
+                priority, steps, expected_result, test_name = row
+                if test_name:
+                    test_name = f"{test_name.strip().replace(' ', '_').replace("\\", "")}.py"
+                else:
+                    test_name = "Отсутствует"  # TODO generate ai name
 
                 return TestScenario(
                     priority=priority,
-                    test_name=f"{test_name.strip().replace(' ', '_')}.py",
+                    test_name=test_name,
                     subject=test_name.strip(),
                     description=steps.strip(),
                     expected_result=expected_result.strip(),
