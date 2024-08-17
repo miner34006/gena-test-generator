@@ -1,5 +1,8 @@
 from .md_handler import MdHandler
 from .md_list_handler import MdListHandler
+from .md_table_handler import MdTableHandler
+
+__all__ = ['MdHandler', 'MdListHandler', 'MdTableHandler']
 
 
 def get_md_handlers() -> list[MdHandler]:

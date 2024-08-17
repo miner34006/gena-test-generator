@@ -34,9 +34,10 @@ class MdTableHandler(MdHandler):
         is_table_header = re.search(self.__get_header_pattern(), line) is not None
         is_table_separator = re.search(self.__get_separator_line_pattern(), line) is not None
         is_header = line.startswith('## Сценарии')
+        is_title = line.startswith('## Описание')
         is_empty_line = len(re.findall(u"\\S", line)) == 0
 
-        return is_table_header or is_table_separator or is_header or is_empty_line
+        return is_table_header or is_table_separator or is_header or is_empty_line or is_title
 
     def __parse_table_line(self, line: str, current_section: str) -> TestScenario:
         rows = re.findall(self.__get_rows_pattern(), line)

@@ -4,6 +4,7 @@ from test_generator.errors import ScenariosValidationError
 from test_generator.priority import Priority
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
+
 from .md_handler import MdHandler
 
 SCNEARIOS_STR = """## Описание
@@ -87,14 +88,14 @@ class MdListHandler(MdHandler):
                 positive_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} ' \
                                           f'-> {scenario.expected_result}\n'
                 for param in scenario.params:
-                    positive_scenarios_str += f'    * {param}\n'
+                    positive_scenarios_str += '    * ' + param + '\n'
 
             negative_scenarios_str = ''
             for scenario in negative_scenarios:
                 negative_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} ' \
                                           f'-> {scenario.expected_result}\n'
                 for param in scenario.params:
-                    negative_scenarios_str += f'    * {param}\n'
+                    negative_scenarios_str += '    * ' + param + '\n'
 
             scenario_str = SCNEARIOS_STR.format(
                 feature=data.feature,
