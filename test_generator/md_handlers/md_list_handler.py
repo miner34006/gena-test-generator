@@ -1,5 +1,4 @@
-import json
-from dataclasses import asdict
+import os
 from enum import Enum
 
 from test_generator.errors import ScenariosValidationError
@@ -7,6 +6,20 @@ from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
 from .md_handler import MdHandler
+
+SCNEARIOS_STR = """
+## Описание
+
+**Feature** - {feature}
+
+**Story** - {story}
+
+## Сценарии
+
+### Позитивные
+{positive_scenarios_str}
+### Негативные
+{negative_scenarios_str}"""
 
 
 class Priority(Enum):
@@ -54,9 +67,9 @@ class MdListHandler(MdHandler):
                 feature = line.split('-')[1].strip()
             elif line.startswith('**Story**'):
                 story = line.split('-')[1].strip()
-            elif line.startswith('### позитивные'):
+            elif line.startswith('### Позитивные'):
                 current_section = 'positive'
-            elif line.startswith('### негативные'):
+            elif line.startswith('### Негативные'):
                 current_section = 'negative'
             elif line.startswith('-') and current_section:
                 test_scenarios.append(self.__parse_line(line, current_section))
@@ -70,7 +83,34 @@ class MdListHandler(MdHandler):
         )
 
     def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
-        print(json.dumps(asdict(data), indent=4))
+        if not force and os.path.exists(file_path):
+            raise FileExistsError(f'File "{file_path}" already exists')
+
+        with open(file_path, 'w', encoding='utf-8') as file:
+            positive_scenarios = [scenario for scenario in data.test_scenarios if scenario.is_positive]
+            negative_scenarios = [scenario for scenario in data.test_scenarios if not scenario.is_positive]
+
+            positive_scenarios_str = ''
+            for scenario in positive_scenarios:
+                positive_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} '\
+                                          f'-> {scenario.expected_result}\n'
+                for param in scenario.params:
+                    positive_scenarios_str += f'    * {param}\n'
+
+            negative_scenarios_str = ''
+            for scenario in negative_scenarios:
+                negative_scenarios_str += f'- {scenario.priority}: {scenario.subject}: {scenario.description} '\
+                                          f'-> {scenario.expected_result}\n'
+                for param in scenario.params:
+                    negative_scenarios_str += f'    * {param}\n'
+
+            scenario_str = SCNEARIOS_STR.format(
+                feature=data.feature,
+                story=data.story,
+                positive_scenarios_str=positive_scenarios_str,
+                negative_scenarios_str=negative_scenarios_str
+            )
+            file.write(scenario_str)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -80,10 +120,10 @@ class MdListHandler(MdHandler):
             raise ScenariosValidationError('No "**Feature**" section in file')
         if '**Story**' not in file_content:
             raise ScenariosValidationError('No "**Story**" section in file')
-        if '### позитивные' not in file_content:
-            raise ScenariosValidationError('No "### позитивные" section in file')
-        if '### негативные' not in file_content:
-            raise ScenariosValidationError('No "### негативные" section in file')
+        if '### Позитивные' not in file_content:
+            raise ScenariosValidationError('No "### Позитивные" section in file')
+        if '### Негативные' not in file_content:
+            raise ScenariosValidationError('No "### Негативные" section in file')
 
         lines = file_content.split('\n')
         for line in lines:

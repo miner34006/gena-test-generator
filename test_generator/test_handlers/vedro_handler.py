@@ -25,6 +25,9 @@ class ScenarioVisitor(ast.NodeVisitor):
         self.scenario.subject = self.unknown
         self.scenario.expected_result = self.unknown
 
+    def __cut_subject_params(self, subject: str) -> str:
+        return subject.split(' (param = ')[0]
+
     def visit_ClassDef(self, node):
         if any(self.is_scenario_base(base) for base in node.bases):
             self.visit_scenario_decorators(node.decorator_list)
@@ -57,7 +60,7 @@ class ScenarioVisitor(ast.NodeVisitor):
             if isinstance(item, ast.Expr) and isinstance(item.value, ast.Str):
                 self.parse_docstring(item.value.s)
             elif isinstance(item, ast.Assign) and item.targets[0].id == 'subject':  # type: ignore
-                subject = item.value.s  # type: ignore
+                subject = self.__cut_subject_params(item.value.s)  # type: ignore
                 self.scenario.subject = subject
                 self.scenario.is_positive = 'try to' not in subject.lower()
             elif isinstance(item, ast.FunctionDef) and item.name == '__init__':
