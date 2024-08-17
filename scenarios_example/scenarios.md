@@ -4,7 +4,7 @@
 
 **Story** - UserStory
 
-**API** - POST /path/to/endpoint
+**API** - GET /healthcheck/readiness
 
 ## Сценарии
 
