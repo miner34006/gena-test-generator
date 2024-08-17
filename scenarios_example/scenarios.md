@@ -4,6 +4,8 @@
 
 **Story** - UserStory
 
+**API** - POST /path/to/endpoint
+
 ## Сценарии
 
 ### Позитивные
