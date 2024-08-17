@@ -20,12 +20,12 @@ class SchemaResponseHandler(SchemaHandler):
 
         data_list = read_swagger_data(self.yaml_file_path)
         data = filter_schema_data_by_path_and_method(data_list, method, path)
-        schema_file_name = f'{data.interface_method}.py'
+        schema_file = f'{schema_dir_path}/{data.interface_method}.py'
 
-        with open(f'{schema_dir_path}/{schema_file_name}', 'a') as file:
-            file.write('from d42 import optional, schema\n\n\n\n')
+        with open(schema_file, 'a') as file:
+            file.write(f'from d42 import optional, schema\n\n\n\n{data.schema_prefix} = {data.response_schema_d42}')
 
-        print(f"Successfully interface generated for {method} {path}")
+        print(f"Successfully response schema generated for {method} {path} in {schema_file}")
 
     def __set_yaml_file(self, yaml_file_path: str) -> None:
         if not os.path.isfile(yaml_file_path):
