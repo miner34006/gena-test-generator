@@ -32,6 +32,8 @@ def parse_arguments():
                              f"{','.join([f.format_name for f in get_md_handlers()])}",
                         default=get_default_md_handler().format_name)
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
+    parser.add_argument('--reversed', action='store_true', help='Create scenarios file from test files.'
+                                                                'Tests should have same story and feature.')
     return parser.parse_args()
 
 
@@ -43,7 +45,7 @@ def get_script_paths(args: argparse.Namespace) -> tuple:
     return scenarios_path, args.template_path, target_dir
 
 
-def main(args: argparse.Namespace) -> None:
+def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     scenarios_path, template_path, target_dir = get_script_paths(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
@@ -61,6 +63,23 @@ def main(args: argparse.Namespace) -> None:
     test_handler = VedroHandler(template_content)
     test_handler.validate_suite(suite)
     test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
+
+
+def create_scenarios_from_tests(args: argparse.Namespace) -> None:
+    scenarios_path, _, target_dir = get_script_paths(args)
+
+    test_handler = VedroHandler()
+    suite = test_handler.read_tests(target_dir)
+
+    md_handler = get_md_handler_by_name(args.md_format)
+    md_handler.write_data(scenarios_path, suite, force=args.force)
+
+
+def main(args: argparse.Namespace) -> None:
+    if args.reversed:
+        create_scenarios_from_tests(args)
+    else:
+        create_tests_from_scenarios(args)
 
 
 if __name__ == '__main__':

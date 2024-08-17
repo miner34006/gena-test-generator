@@ -12,3 +12,14 @@ class TestScenario:
     params: list[str] = field(default_factory=list, repr=False)
 
     other_data: dict = field(default_factory=dict, repr=False)
+
+    @staticmethod
+    def create_empty() -> 'TestScenario':
+        return TestScenario(
+            priority='',
+            test_name='',
+            subject='',
+            description='',
+            expected_result='',
+            is_positive=False
+        )

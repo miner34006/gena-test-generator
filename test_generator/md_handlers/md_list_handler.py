@@ -1,3 +1,5 @@
+import json
+from dataclasses import asdict
 from enum import Enum
 
 from test_generator.errors import ScenariosValidationError
@@ -67,8 +69,8 @@ class MdListHandler(MdHandler):
             test_scenarios=test_scenarios
         )
 
-    def write_data(self, file_path: str, data: Suite, *args, **kwargs) -> None:
-        raise NotImplementedError('method is not implemented')
+    def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
+        print(json.dumps(asdict(data), indent=4))
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:
