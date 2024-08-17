@@ -7,8 +7,7 @@ from test_generator.suite import Suite
 
 from .md_handler import MdHandler
 
-SCNEARIOS_STR = """
-## Описание
+SCNEARIOS_STR = """## Описание
 
 **Feature** - {feature}
 
