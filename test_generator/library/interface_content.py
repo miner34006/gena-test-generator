@@ -8,8 +8,7 @@ class InterfaceContent(str, Enum):
     async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
-            **self._actor.params,
-            # CHANGE_ME_TO_NEED_PARAMS
+            **self._actor.params,$queries
         }
         raise NotImplementedError('Need change parameters/body in new generated interface')
         return await API.get(url, params=params, headers=self._actor.metadata)
@@ -18,8 +17,7 @@ class InterfaceContent(str, Enum):
     async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
-            **self._actor.params,
-            # CHANGE_ME_TO_NEED_PARAMS
+            **self._actor.params,$queries
         }
         
         data = {
@@ -32,8 +30,7 @@ class InterfaceContent(str, Enum):
     async def $name(self$params) -> ClientResponse:
         url = self._api_url + f"$path"
         params = {
-            **self._actor.params,
-            # CHANGE_ME_TO_NEED_PARAMS
+            **self._actor.params,$queries
         }
         raise NotImplementedError('Need change parameters/body in new generated interface')
         return await API.delete(url, params=params, headers=self._actor.metadata)
@@ -50,11 +47,20 @@ class InterfaceContent(str, Enum):
                 func = InterfaceContent.DELETE
             case default:
                 raise RuntimeError(f'{schema_data.http_method} is not supported')
-        params = schema_data.args + schema_data.queries
+
+        queries = ""
+        for query in schema_data.queries:
+            queries = queries + f'\n\t\t\t"{query}": {query},'
+
+        queries_for_method_params = [f'{query}: str' for query in schema_data.queries]
+        params = schema_data.args + queries_for_method_params
+
         if params:
             params_data = ', ' + ', '.join(params)
         else:
             params_data = ''
+
         return (func.replace('$path', schema_data.path)
                     .replace('$name', schema_data.interface_method)
-                    .replace('$params', params_data))
+                    .replace('$params', params_data)
+                    .replace('$queries', queries))
