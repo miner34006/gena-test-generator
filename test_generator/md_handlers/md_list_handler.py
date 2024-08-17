@@ -5,6 +5,7 @@ from test_generator.priority import Priority
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
+from .const import SCENARIOS_STR
 from .md_handler import MdHandler
 
 SCNEARIOS_STR = """## Описание
@@ -96,7 +97,7 @@ class MdListHandler(MdHandler):
                 for param in scenario.params:
                     negative_scenarios_str += '    * ' + param + '\n'
 
-            scenario_str = SCNEARIOS_STR.format(
+            scenarios_str = SCENARIOS_STR.format(
                 feature=data.feature,
                 story=data.story,
                 positive_scenarios_str=positive_scenarios_str,
@@ -104,7 +105,7 @@ class MdListHandler(MdHandler):
                 api_method=data.api_method,
                 api_endpoint=data.api_endpoint
             )
-            file.write(scenario_str)
+            file.write(scenarios_str)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:

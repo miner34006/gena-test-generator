@@ -1,10 +1,14 @@
+import os
 import re
 from re import Pattern
+
+from tabulate import tabulate
 
 from test_generator.errors import ScenariosValidationError
 from test_generator.scenario import TestScenario
 from test_generator.suite import Suite
 
+from .const import SCENARIOS_STR
 from .md_handler import MdHandler
 
 
@@ -95,8 +99,33 @@ class MdTableHandler(MdHandler):
 
         return suite
 
-    def write_data(self, file_path: str, data: Suite, *args, **kwargs) -> None:
-        raise NotImplementedError('method is not implemented')
+    def __prepare_table_data_scenarios(self, scenarios: list[TestScenario], is_positive: bool) -> list[list]:
+        return [
+            [scenario.priority, scenario.description, scenario.expected_result, scenario.subject]
+            for scenario in scenarios if scenario.is_positive == is_positive
+        ]
+
+    def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
+        if not force and os.path.exists(file_path):
+            raise FileExistsError(f'File "{file_path}" already exists')
+
+        headers = ["Приоритет", "Описание", "Ожидаемый результат", "Название теста"]
+
+        positive_scenarios = self.__prepare_table_data_scenarios(data.test_scenarios, True)
+        negative_scenarios = self.__prepare_table_data_scenarios(data.test_scenarios, False)
+
+        positive_scenarios_table = tabulate(positive_scenarios, headers, tablefmt="github")
+        negative_scenarios_table = tabulate(negative_scenarios, headers, tablefmt="github")
+
+        scenarios_str = SCENARIOS_STR.format(
+            feature=data.feature,
+            story=data.story,
+            positive_scenarios_str=positive_scenarios_table,
+            negative_scenarios_str=negative_scenarios_table
+        )
+
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(scenarios_str)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:
