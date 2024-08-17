@@ -34,6 +34,13 @@ def parse_arguments():
     parser.add_argument('--force', action='store_true', help='Force overwrite existing files.')
     parser.add_argument('--reversed', action='store_true', help='Create scenarios file from test files.'
                                                                 'Tests should have same story and feature.')
+    parser.add_argument('--yaml-path', type=str,
+                        help='Path to the yaml file.'
+                             'For generate interface or schema automatically')
+    parser.add_argument('--interface-path', type=str,
+                        help='Path to the interface file. '
+                             'For generate interface automatically')
+
     return parser.parse_args()
 
 
@@ -81,10 +88,13 @@ def main(args: argparse.Namespace) -> None:
     else:
         create_tests_from_scenarios(args)
 
-    # dir = os.path.join(os.getcwd(), 'interfaces')
-    # swagger_handler = SwaggerYamlHandler()
-    # swagger_handler.write_swagger_interface(dir, 'social-graph-api.yaml', 'POST',
-    #                                         '/bonuses/vibes/buy_achieve/{achieve_id}')
+    # Пример вызова
+    # yaml_file_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/templates/bonuses-api.yaml'
+    # interface_file_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/interfaces/BonusesApi.py'
+    # schemas_dir_path = '/Users/isnightmaredream/Documents/2GIS_Project/vedro-test-generator/schemas'
+    #
+    # swagger_handler = SwaggerYamlHandler(yaml_file_path, interface_file_path, schemas_dir_path)
+    # swagger_handler.write_swagger_interface('POST', '/bonuses/vibes/buy_achieve/{achieve_id}')
 
 
 if __name__ == '__main__':

@@ -6,17 +6,16 @@ from schemax_openapi import SchemaData
 
 class SwaggerHandler(ABC):
     format_name = 'AbstractSwaggerHandler'
-    template_content = ''
 
     @abstractmethod
-    def read_swagger_data(self, file_path: str, *args, **kwargs) -> List[SchemaData]:
+    def read_swagger_data(self) -> List[SchemaData]:
         """
         Читаем данные из файла swagger-а
         """
         ...
 
     @abstractmethod
-    def write_swagger_interface(self, interface_dir: str, file_path: str, method: str, path: str) -> None:
+    def write_swagger_interface(self, method: str, path: str) -> None:
         """
         Генерируем примерный интерфейс в *Api.py
         """
