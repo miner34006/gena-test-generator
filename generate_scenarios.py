@@ -2,9 +2,9 @@ import argparse
 import os
 from copy import deepcopy
 
-from default_scenarios import DEFAULT_SUITE
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
+from test_generator.md_handlers.const import DEFAULT_SUITE
 from test_generator.suite import Suite
 from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 from test_generator.test_handlers.vedro_handler import VedroHandler
@@ -28,7 +28,7 @@ def parse_arguments():
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
-    parser.add_argument('--generate', action='store_true',
+    parser.add_argument('--md-example', action='store_true',
                         help="Generate new md-file with scenarios.", default=False)
     parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
     parser.add_argument('--md-format', type=valid_md_format,
@@ -126,7 +126,7 @@ def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> No
 
 
 def main(args: argparse.Namespace) -> None:
-    if args.generate:
+    if args.md_example:
         create_new_scenarios(args)
     elif args.reversed:
         create_scenarios_from_tests(args)
@@ -137,10 +137,10 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == '__main__':
     args = parse_arguments()
 
-    if args.reversed and args.generate:
-        raise argparse.ArgumentTypeError('Use one argument: --generate OR --reversed')
+    if args.reversed and args.md_example:
+        raise argparse.ArgumentTypeError('Use one argument: --md-example OR --reversed')
 
-    if not args.template_path and not args.reversed and not args.interface_only and not args.generate:
+    if not args.template_path and not args.reversed and not args.interface_only and not args.md_example:
         raise argparse.ArgumentTypeError('--template-path is required for generating tests')
     if args.interface_only and not args.interface_path:
         raise argparse.ArgumentTypeError('--interface-path is required for generating interface')
