@@ -10,7 +10,6 @@
 python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --md-example
 ```
 
-
 ### Step 2. Создать py-файлы по сценариям
 
 Генерация py-файлов без использования интерфейса по md-файлу со сценариями:
