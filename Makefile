@@ -1,5 +1,4 @@
 PROJECT_NAME=test_generator
-SCRIPT_FILE=generate_scenarios.py
 
 .PHONY: install
 install:
@@ -8,19 +7,19 @@ install:
 
 .PHONY: check-types
 check-types:
-	python3 -m mypy ${PROJECT_NAME} ${SCRIPT_FILE} --implicit-optional --implicit-reexport
+	python3 -m mypy ${PROJECT_NAME} --implicit-optional --implicit-reexport
 
 .PHONY: check-imports
 check-imports:
-	python3 -m isort ${PROJECT_NAME} ${SCRIPT_FILE} --check-only
+	python3 -m isort ${PROJECT_NAME} --check-only
 
 .PHONY: sort-imports
 sort-imports:
-	python3 -m isort ${PROJECT_NAME} ${SCRIPT_FILE}
+	python3 -m isort ${PROJECT_NAME}
 
 .PHONY: check-style
 check-style:
-	python3 -m flake8 ${PROJECT_NAME} ${SCRIPT_FILE}
+	python3 -m flake8 ${PROJECT_NAME}
 
 .PHONY: lint
 lint: check-types check-style check-imports
