@@ -5,11 +5,11 @@
 ### Параметры скрипта
 
 *   `--scenarios-path` - путь к файлу сценариев (по умолчанию равен scenarios.md в текущей рабочей директории);
-*   `--template-path`\- путь к файлу шаблону для тестов;
+*   `--template-path` - путь к файлу шаблону для тестов;
 *   `--target-dir` - путь к директории куда сохранить созданные тесты (по умолчанию равен file\_path);
 *   `--ai` - использовать ChatGPT для генерации subject и имен файлов тестов (в переменных окружения должны быть определены переменные `OPENAI_API_KEY` & `OPENAI_URL`);
-*   `--force` - пересоздать файлы тестов даже если они уже существуют в `target-dir` директории.
-*   `--reversed` - сгенерировать md-файл со сценариями по уже имеющимся тестам.
+*   `--force` - пересоздать файлы даже если они уже существуют;
+*   `--reversed` - сгенерировать md-файл со сценариями по уже имеющимся тестам в `--target-dir`;
 *   `--md-example` - сгенерировать новый md-файл со сценариями.
 
 ### Формат md-файла
@@ -43,12 +43,6 @@ python3 generate_scenarios.py --scenarios-path=$PROJECT_PATH/new_scenarios.md --
 
 ```python
 python3 generate_scenarios.py --template-path=$PROJECT_PATH/templates/test_template.txt --scenarios-path=$PROJECT_PATH/new_scenarios.md --md-format=md_table_format --no-interface
-```
-
-Генерация py-файлов без использования интерфейса по md-файлу со сценариями:
-
-```python
-python3 generate_scenarios.py --template-path=$PROJECT_PATH/templates/test_template.txt --scenarios-path=$PROJECT_PATH/new_scenarios.md --md-format=md_table_format --no-interface`
 ```
 
 #### Step 3. Создать md-файл со сценариями по py-файлам

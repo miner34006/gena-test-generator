@@ -68,7 +68,7 @@ class ChatGPTHandler:
                     if index < 0 or index >= len(ai_updated_cases):
                         raise ValueError('Невалидный индекс теста')
 
-                    print(f"Введите новое название для теста {index + 1}.\n"
+                    print(f"\nВведите новое название для теста {index + 1}.\n"
                           f"Если вы хотите перегенировать остальные названия на основе измененных данных, "
                           f"отправьте первым символом знак '!': ")
                     new_subject = input("> ")

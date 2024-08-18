@@ -99,6 +99,9 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
     test_handler = VedroHandler()
     suite = test_handler.read_tests(target_dir)
+    if not suite.test_scenarios:
+        print('No scenarios found in the target directory')
+        return
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, suite, force=args.force)

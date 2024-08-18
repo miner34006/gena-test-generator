@@ -26,7 +26,7 @@ DEFAULT_SUITE = Suite(
     test_scenarios=[
         TestScenario(
             priority=Priority.P0.value,
-            subject='YOUR SUBJECT',
+            subject='YOUR SUBJECT 1',
             test_name='',
             description='YOUR DESCRIPTION',
             expected_result='YOUR EXPECTED RESULT',
@@ -35,7 +35,7 @@ DEFAULT_SUITE = Suite(
         ),
         TestScenario(
             priority=Priority.P2.value,
-            subject='YOUR SUBJECT',
+            subject='YOUR SUBJECT 2',
             test_name='',
             description='YOUR DESCRIPTION',
             expected_result='YOUR EXPECTED RESULT',
