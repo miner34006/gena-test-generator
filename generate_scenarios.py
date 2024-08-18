@@ -3,9 +3,9 @@ import os
 from copy import deepcopy
 
 from test_generator.chatgpt_handler import ChatGPTHandler
+from test_generator.library.suite import Suite
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.md_handlers.const import DEFAULT_SUITE
-from test_generator.suite import Suite
 from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 from test_generator.test_handlers.vedro_handler import VedroHandler
 
@@ -24,13 +24,14 @@ def parse_arguments():
     parser.add_argument('--scenarios-path', type=str, default='scenarios.md',
                         help='Path to the scenario file. Defaults to scenarios.md in the current directory.')
     parser.add_argument('--template-path', type=str, required=False,
-                        help='Path to the template file.')
+                        help='Path to the test template file (used for tests generation).')
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
     parser.add_argument('--md-example', action='store_true',
                         help="Generate new md-file with scenarios.", default=False)
-    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
+    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and '
+                                                          'subjects for tests (if not exsists).')
     parser.add_argument('--md-format', type=valid_md_format,
                         help="Name of the format to use. "
                              "Available scenarios.md formats are: "
@@ -43,11 +44,9 @@ def parse_arguments():
                         default=False)
     parser.add_argument('--interface-only', action='store_true', help='Generate interface only.')
     parser.add_argument('--yaml-path', type=str,
-                        help='Path to the yaml file.'
-                             'For generate interface or schema automatically')
+                        help='Path to the swagger yaml file. Used for interface generating.')
     parser.add_argument('--interface-path', type=str,
-                        help='Path to the interface file. '
-                             'For generate interface automatically')
+                        help='Path to the interface file. Used for interface generating.')
 
     return parser.parse_args()
 
@@ -99,14 +98,17 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
     test_handler = VedroHandler()
     suite = test_handler.read_tests(target_dir)
+    if not suite.test_scenarios:
+        print('No scenarios found in the target directory')
+        return
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, suite, force=args.force)
 
 
-def create_new_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path, _, target_dir = get_script_paths(args)
-    md_handler = get_md_handler_by_name(args.md_format) if args.md_format else get_default_md_handler()
+def create_example_scenarios(args: argparse.Namespace) -> None:
+    scenarios_path, _, _ = get_script_paths(args)
+    md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)
 
 
@@ -127,7 +129,7 @@ def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> No
 
 def main(args: argparse.Namespace) -> None:
     if args.md_example:
-        create_new_scenarios(args)
+        create_example_scenarios(args)
     elif args.reversed:
         create_scenarios_from_tests(args)
     else:

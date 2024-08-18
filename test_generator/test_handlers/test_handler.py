@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 
 class TestHandler(ABC):

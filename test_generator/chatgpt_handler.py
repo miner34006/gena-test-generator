@@ -3,8 +3,8 @@ from copy import deepcopy
 
 from openai import OpenAI
 
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 PROMPT = """
     There is a list of test cases in JSON format.
@@ -68,7 +68,7 @@ class ChatGPTHandler:
                     if index < 0 or index >= len(ai_updated_cases):
                         raise ValueError('Невалидный индекс теста')
 
-                    print(f"Введите новое название для теста {index + 1}.\n"
+                    print(f"\nВведите новое название для теста {index + 1}.\n"
                           f"Если вы хотите перегенировать остальные названия на основе измененных данных, "
                           f"отправьте первым символом знак '!': ")
                     new_subject = input("> ")

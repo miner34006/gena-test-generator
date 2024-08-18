@@ -1,6 +1,6 @@
-from test_generator.priority import Priority
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.priority import Priority
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 SCENARIOS_STR = """## Описание
 
@@ -26,7 +26,7 @@ DEFAULT_SUITE = Suite(
     test_scenarios=[
         TestScenario(
             priority=Priority.P0.value,
-            subject='YOUR SUBJECT',
+            subject='YOUR SUBJECT 1',
             test_name='',
             description='YOUR DESCRIPTION',
             expected_result='YOUR EXPECTED RESULT',
@@ -35,7 +35,7 @@ DEFAULT_SUITE = Suite(
         ),
         TestScenario(
             priority=Priority.P2.value,
-            subject='YOUR SUBJECT',
+            subject='YOUR SUBJECT 2',
             test_name='',
             description='YOUR DESCRIPTION',
             expected_result='YOUR EXPECTED RESULT',

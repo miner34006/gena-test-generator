@@ -1,9 +1,9 @@
 import ast
 import os
 
-from test_generator.errors import ScenariosValidationError
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.errors import ScenariosValidationError
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 from test_generator.test_handlers.test_handler import TestHandler
 
 PARAMS_TEMPLATE = """\n
@@ -153,10 +153,11 @@ class VedroHandler(TestHandler):
         for object_path in all_objects_in_dir:
             if os.path.isdir(os.path.join(target_dir, object_path)):
                 suite = self.read_tests(os.path.join(target_dir, object_path))
-                stories.add(suite.story)
-                features.add(suite.feature)
-                scenarios.extend(suite.test_scenarios)
-                continue
+                if suite.test_scenarios:
+                    stories.add(suite.story)
+                    features.add(suite.feature)
+                    scenarios.extend(suite.test_scenarios)
+                    continue
 
             if not object_path.endswith('.py'):
                 continue
@@ -172,8 +173,6 @@ class VedroHandler(TestHandler):
         if (len(stories) > 2) or (len(stories) == 2 and ScenarioVisitor.unknown not in stories):
             raise ScenariosValidationError(f"Multiple stories detected: {stories}, "
                                            "can't create a single scenarios file.")
-        if len(scenarios) == 0:
-            raise ScenariosValidationError("No scenarios found in the target directory")
 
         feature = ' & '.join(list(features))
         story = ' & '.join(list(stories))
