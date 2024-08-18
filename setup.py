@@ -14,13 +14,13 @@ def find_dev_required():
         return f.read().splitlines()
 
 setuptools.setup(
-    name="test-generator",
+    name="gena-test-generator",
     description="Script for generating tests from Markdown files",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     version=__version__,
     license="Apache-2.0",
-    url="https://github.com/miner34006/test-generator",
+    url="https://github.com/miner34006/gena-test-generator",
     python_requires=">=3.7",
     packages=find_packages(exclude=["tests", "tests.*"]),
     package_data={"test_generator": ["py.typed"]},
