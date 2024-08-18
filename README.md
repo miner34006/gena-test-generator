@@ -7,10 +7,8 @@
 Генерация нового md-файла со сценариями:
 
 ```bash
-python3 generate_scenarios.py --scenarios-path=$PROJECT_PATH/new_scenarios.md --md-example
+python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --md-example
 ```
-
-где $PROJECT\_PATH - путь к проекту
 
 
 ### Step 2. Создать py-файлы по сценариям
@@ -18,7 +16,7 @@ python3 generate_scenarios.py --scenarios-path=$PROJECT_PATH/new_scenarios.md --
 Генерация py-файлов без использования интерфейса по md-файлу со сценариями:
 
 ```bash
-python3 generate_scenarios.py --template-path=$PROJECT_PATH/templates/test_template.txt --scenarios-path=$PROJECT_PATH/new_scenarios.md --md-format=md_table_format --no-interface
+python3 generate_scenarios.py --template-path=$(pwd)/templates/test_template.txt --scenarios-path=$(pwd)/scenarios.md --no-interface
 ```
 
 ### Step 3. Создать md-файл со сценариями по py-файлам
@@ -26,7 +24,7 @@ python3 generate_scenarios.py --template-path=$PROJECT_PATH/templates/test_templ
 Cгенерировать md-файл со сценариями по уже имеющимся тестам:
 
 ```bash
-python3 generate_scenarios.py --scenarios-path=$PROJECT_PATH/new_scenarios.md --target-dir=$PROJECT_PATH/PATH_TO_TESTS --md-format=md_table_format --reversed
+python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --target-dir=$PATH_TO_TESTS --reversed
 ```
 
 ## Использование AI
