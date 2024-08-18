@@ -24,13 +24,13 @@ def parse_arguments():
     parser.add_argument('--scenarios-path', type=str, default='scenarios.md',
                         help='Path to the scenario file. Defaults to scenarios.md in the current directory.')
     parser.add_argument('--template-path', type=str, required=False,
-                        help='Path to the template file.')
+                        help='Path to the test template file (used for tests generation).')
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
     parser.add_argument('--md-example', action='store_true',
                         help="Generate new md-file with scenarios.", default=False)
-    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects.')
+    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects for tests (if not exsists).')
     parser.add_argument('--md-format', type=valid_md_format,
                         help="Name of the format to use. "
                              "Available scenarios.md formats are: "
@@ -43,11 +43,9 @@ def parse_arguments():
                         default=False)
     parser.add_argument('--interface-only', action='store_true', help='Generate interface only.')
     parser.add_argument('--yaml-path', type=str,
-                        help='Path to the yaml file.'
-                             'For generate interface or schema automatically')
+                        help='Path to the swagger yaml file. Used for interface generating.')
     parser.add_argument('--interface-path', type=str,
-                        help='Path to the interface file. '
-                             'For generate interface automatically')
+                        help='Path to the interface file. Used for interface generating.')
 
     return parser.parse_args()
 
