@@ -37,6 +37,10 @@ gena --reversed --target-dir TARGET_DIR
 - в файле сценариев поле subject должно быть не заполнено;
 - должны быть определены env переменные `OPENAI_API_KEY` & `OPENAI_URL`.
 
+```bash
+gena --template-path=$(pwd)/templates/test_template.txt --no-interface --ai
+```
+
 
 ## Форматы md-файлов
 

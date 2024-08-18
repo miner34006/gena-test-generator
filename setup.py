@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import setuptools
+from setuptools import find_packages
 
-from test_generator import __version__
+from test_generator.__version__ import __version__
 
 
 def find_required():
@@ -17,14 +15,15 @@ def find_dev_required():
 
 setuptools.setup(
     name="test-generator",
-    description="Script for generating tests",
+    description="Script for generating tests from Markdown files",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     version=__version__,
     license="Apache-2.0",
     url="https://github.com/miner34006/test-generator",
     python_requires=">=3.7",
-    packages=['test_generator'],
+    packages=find_packages(exclude=["tests", "tests.*"]),
+    package_data={"test_generator": ["py.typed"]},
     install_requires=find_required(),
     tests_require=find_dev_required(),
     entry_points={

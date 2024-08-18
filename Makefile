@@ -1,10 +1,5 @@
 PROJECT_NAME=test_generator
 
-.PHONY: install
-install:
-	pip3 install --quiet --upgrade pip
-	pip3 install --quiet -r requirements.txt -r requirements-dev.txt
-
 .PHONY: check-types
 check-types:
 	python3 -m mypy ${PROJECT_NAME} --implicit-optional --implicit-reexport
@@ -24,3 +19,21 @@ check-style:
 .PHONY: lint
 lint: check-types check-style check-imports
 
+.PHONY: bump
+bump:
+	python3 -m bump --patch $(args)
+
+.PHONY: install
+install:
+	pip3 install --quiet --upgrade pip
+	pip3 install --quiet -r requirements.txt -r requirements-dev.txt
+
+.PHONY: build
+build:
+	pip3 install --quiet --upgrade pip
+	pip3 install --quiet --upgrade setuptools wheel twine
+	python3 setup.py sdist bdist_wheel
+
+.PHONY: publish
+publish:
+	twine upload dist/*
