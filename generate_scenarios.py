@@ -107,9 +107,9 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     md_handler.write_data(scenarios_path, suite, force=args.force)
 
 
-def create_new_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path, _, target_dir = get_script_paths(args)
-    md_handler = get_md_handler_by_name(args.md_format) if args.md_format else get_default_md_handler()
+def create_example_scenarios(args: argparse.Namespace) -> None:
+    scenarios_path, _, _ = get_script_paths(args)
+    md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)
 
 
@@ -130,7 +130,7 @@ def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> No
 
 def main(args: argparse.Namespace) -> None:
     if args.md_example:
-        create_new_scenarios(args)
+        create_example_scenarios(args)
     elif args.reversed:
         create_scenarios_from_tests(args)
     else:
