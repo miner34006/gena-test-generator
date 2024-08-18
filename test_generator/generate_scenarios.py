@@ -72,6 +72,12 @@ def get_interfaces_path(args: argparse.Namespace) -> tuple:
     return yaml_path, interface_path
 
 
+def get_schema_path(args: argparse.Namespace) -> str:
+    current_dir = os.getcwd()
+    schema_dir_path = os.path.join(current_dir, args.schemas_path)
+    return schema_dir_path
+
+
 def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     scenarios_path, template_path, target_dir = get_script_paths(args)
 
