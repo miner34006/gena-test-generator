@@ -1,6 +1,6 @@
-from test_generator.priority import Priority
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.priority import Priority
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 SCENARIOS_STR = """## Описание
 

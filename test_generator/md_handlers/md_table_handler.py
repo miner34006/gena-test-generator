@@ -4,9 +4,9 @@ from re import Pattern
 
 from tabulate import tabulate
 
-from test_generator.errors import ScenariosValidationError
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.errors import ScenariosValidationError
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 from .const import SCENARIOS_STR
 from .md_handler import MdHandler

@@ -3,8 +3,8 @@ from copy import deepcopy
 
 from openai import OpenAI
 
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 
 PROMPT = """
     There is a list of test cases in JSON format.

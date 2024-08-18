@@ -3,9 +3,9 @@ import os
 from copy import deepcopy
 
 from test_generator.chatgpt_handler import ChatGPTHandler
+from test_generator.library.suite import Suite
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.md_handlers.const import DEFAULT_SUITE
-from test_generator.suite import Suite
 from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 from test_generator.test_handlers.vedro_handler import VedroHandler
 
@@ -30,7 +30,8 @@ def parse_arguments():
                              'Defaults to the directory of scenarios-path.')
     parser.add_argument('--md-example', action='store_true',
                         help="Generate new md-file with scenarios.", default=False)
-    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and subjects for tests (if not exsists).')
+    parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and '
+                                                          'subjects for tests (if not exsists).')
     parser.add_argument('--md-format', type=valid_md_format,
                         help="Name of the format to use. "
                              "Available scenarios.md formats are: "

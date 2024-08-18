@@ -1,9 +1,9 @@
 import ast
 import os
 
-from test_generator.errors import ScenariosValidationError
-from test_generator.scenario import TestScenario
-from test_generator.suite import Suite
+from test_generator.library.errors import ScenariosValidationError
+from test_generator.library.scenario import TestScenario
+from test_generator.library.suite import Suite
 from test_generator.test_handlers.test_handler import TestHandler
 
 PARAMS_TEMPLATE = """\n
