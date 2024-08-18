@@ -19,6 +19,7 @@ class ScenarioVisitor(ast.NodeVisitor):
         self.feature = self.unknown
         self.story = self.unknown
 
+        self.was_found = False
         self.scenario = TestScenario.create_empty()
         self.scenario.priority = self.unknown
         self.scenario.description = self.unknown
@@ -30,6 +31,7 @@ class ScenarioVisitor(ast.NodeVisitor):
 
     def visit_ClassDef(self, node):
         if any(self.is_scenario_base(base) for base in node.bases):
+            self.was_found = True
             self.visit_scenario_decorators(node.decorator_list)
             self.visit_class_body(node.body)
 
@@ -96,12 +98,14 @@ class VedroHandler(TestHandler):
         super().__init__()
         self.template = template
 
-    def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario]:
+    def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario | None]:
         with open(file_path, 'r', encoding='utf-8') as file:
             tree = ast.parse(file.read(), filename=file_path)
 
         visitor = ScenarioVisitor()
         visitor.visit(tree)
+        if not visitor.was_found:
+            return '', '', None
         return visitor.feature, visitor.story, visitor.scenario
 
     def write_test(self, file_path: str, scenario: TestScenario, feature: str, story: str,
@@ -163,9 +167,12 @@ class VedroHandler(TestHandler):
                 continue
 
             feature, story, scenario = self.read_test(os.path.join(target_dir, object_path))
-            scenarios.append(scenario)
-            stories.add(story)
-            features.add(feature)
+            if scenario:
+                scenarios.append(scenario)
+            if story:
+                stories.add(story)
+            if feature:
+                features.add(feature)
 
         if (len(features) > 2) or (len(features) == 2 and ScenarioVisitor.unknown not in features):
             raise ScenariosValidationError(f"Multiple features detected: {features}, "

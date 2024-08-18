@@ -134,10 +134,12 @@ def main() -> None:
         raise argparse.ArgumentTypeError('Use one argument: --md-example OR --reversed')
     if not args.template_path and not args.reversed and not args.interface_only and not args.md_example:
         raise argparse.ArgumentTypeError('--template-path is required for generating tests')
-    if (args.interface_only or not args.no_interface) and not args.interface_path:
-        raise argparse.ArgumentTypeError('--interface-path is required for generating interface')
-    if (args.interface_only or not args.no_interface) and not args.yaml_path:
-        raise argparse.ArgumentTypeError('--yaml-path is required for generating interface')
+    if (args.interface_only or (not args.no_interface and (not args.md_example))) and not args.interface_path:
+        if not args.reversed:
+            raise argparse.ArgumentTypeError('--interface-path is required for generating interface')
+    if (args.interface_only or (not args.no_interface and (not args.md_example))) and not args.yaml_path:
+        if not args.reversed:
+            raise argparse.ArgumentTypeError('--yaml-path is required for generating interface')
 
     if args.md_example:
         create_example_scenarios(args)
