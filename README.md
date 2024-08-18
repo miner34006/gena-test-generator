@@ -2,29 +2,30 @@
 
 ## Getting Started
 
+WD - текущая директория
+
 ### Step 1. Создать новый md-файл со сценариями
 
-Генерация нового md-файла со сценариями:
+Генерация нового md-файла со сценариями в WD:
 
 ```bash
-python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --md-example
+gena --md-example --md-format=md_table_format
 ```
-
 
 ### Step 2. Создать py-файлы по сценариям
 
-Генерация py-файлов без использования интерфейса по md-файлу со сценариями:
+Генерация py-файлов в WD без использования интерфейса по md-файлу со сценариями в WD:
 
 ```bash
-python3 generate_scenarios.py --template-path=$(pwd)/templates/test_template.txt --scenarios-path=$(pwd)/scenarios.md --no-interface
+gena --template-path=$(pwd)/templates/test_template.txt --no-interface
 ```
 
 ### Step 3. Создать md-файл со сценариями по py-файлам
 
-Cгенерировать md-файл со сценариями по уже имеющимся тестам:
+Cгенерировать md-файл в WD по уже имеющимся тестам в TARGET_DIR и сабдиректориях:
 
 ```bash
-python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --target-dir=$PATH_TO_TESTS --reversed
+gena --reversed --target-dir TARGET_DIR
 ```
 
 ## Использование AI
@@ -35,6 +36,10 @@ python3 generate_scenarios.py --scenarios-path=$(pwd)/scenarios.md --target-dir=
 - запустить скрипт генерации py файлов с ключом `--ai`;
 - в файле сценариев поле subject должно быть не заполнено;
 - должны быть определены env переменные `OPENAI_API_KEY` & `OPENAI_URL`.
+
+```bash
+gena --template-path=$(pwd)/templates/test_template.txt --no-interface --ai
+```
 
 
 ## Форматы md-файлов
