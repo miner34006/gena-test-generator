@@ -25,3 +25,14 @@ class MdHandler(ABC):
         Проверяем сценарии на валидность
         """
         ...
+
+    def _find_variables(self, file_content: str) -> dict:
+        # variables are stored in double **, so we need to find them
+        # for example: **Variable** = value
+        variables = {}
+        for line in file_content.split('\n'):
+            if line.startswith('**') and '=' in line:
+                key, value = line.split('=', 1)
+                key = key.replace('**', '').strip()
+                variables[key] = value.strip()
+        return variables

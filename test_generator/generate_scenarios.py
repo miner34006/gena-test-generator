@@ -7,7 +7,8 @@ from test_generator.library.suite import Suite
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.md_handlers.const import DEFAULT_SUITE
 from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
-from test_generator.test_handlers.vedro_handler import VedroHandler
+from test_generator.test_readers.vedro_reader import VedroReader
+from test_generator.test_writers.separate_file_writer import SeparateFileWriter
 
 
 def valid_md_format(md_format: str) -> str:
@@ -77,17 +78,14 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
         create_api_method_to_interface(suite, args)
         return
 
-    if args.ai:
+    if args.ai and not all([c.subject for c in suite.test_scenarios]):
         key = os.environ.get('OPENAI_API_KEY', '')
         base_url = os.environ.get('OPENAI_URL', '')
         suite = ChatGPTHandler(key=key, base_url=base_url).update_suite(deepcopy(suite))
 
-    with open(template_path, 'r', encoding='utf-8') as template_file:
-        template_content = template_file.read()
-
-    test_handler = VedroHandler(template_content)
-    test_handler.validate_suite(suite)
-    test_handler.write_tests(dir_path=target_dir, suite=suite, force=args.force)
+    test_writer = SeparateFileWriter(template_path)
+    test_writer.validate_suite(suite)
+    test_writer.write_tests(dir_path=target_dir, suite=suite, force=args.force)
 
     if not args.no_interface:
         create_api_method_to_interface(suite, args)
@@ -96,8 +94,8 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     scenarios_path, _, target_dir = get_script_paths(args)
 
-    test_handler = VedroHandler()
-    suite = test_handler.read_tests(target_dir)
+    vedro_reader = VedroReader()
+    suite = vedro_reader.read_tests(target_dir)
     if not suite.test_scenarios:
         print('No scenarios found in the target directory')
         return
@@ -115,8 +113,12 @@ def create_example_scenarios(args: argparse.Namespace) -> None:
 def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
     yaml_path, interface_path = get_interfaces_path(args)
 
-    method = suite.api_method
-    path = suite.api_endpoint
+    if 'API' not in suite.suite_data:
+        print('API is not defined in the suite data, skipping interface generation')
+        return
+
+    method = suite.suite_data['API'].split(' ')[0]
+    path = suite.suite_data['API'].split(' ')[1]
 
     if not method or method is None or method == 'unknown':
         raise RuntimeError('Method is not defined')

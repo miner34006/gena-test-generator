@@ -55,7 +55,7 @@ class ChatGPTHandler:
             print()
 
             print("Введите номера тестов для изменения через запятую (например, '1,3,5') или 'q' для продолжения:")
-            user_input = input("> ")
+            user_input = input("➡️  ")
             print()
 
             if user_input.lower() == 'q':
@@ -71,7 +71,7 @@ class ChatGPTHandler:
                     print(f"\nВведите новое название для теста {index + 1}.\n"
                           f"Если вы хотите перегенировать остальные названия на основе измененных данных, "
                           f"отправьте первым символом знак '!': ")
-                    new_subject = input("> ")
+                    new_subject = input("➡️  ")
 
                     if new_subject.startswith('!'):
                         need_regeneration = True
@@ -79,6 +79,9 @@ class ChatGPTHandler:
                     if new_subject:
                         original_cases[index].subject = new_subject
                         ai_updated_cases[index].subject = new_subject
+
+                        original_cases[index].test_name = ''
+                        ai_updated_cases[index].test_name = ''
                     else:
                         raise ValueError('Invalid subject received, please try again...')
 

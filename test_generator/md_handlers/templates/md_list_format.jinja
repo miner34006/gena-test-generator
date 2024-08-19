@@ -1,0 +1,25 @@
+## Описание
+
+{% for k, v in suite_data.items() %}
+**{{ k }}** = {{ v }}
+
+{% endfor %}
+## Сценарии
+
+### Позитивные
+
+{% for scenario in test_scenarios|selectattr('is_positive', 'equalto', True) %}
+- {{ scenario.priority }}: {{ scenario.subject }}: {{ scenario.description }} -> {{ scenario.expected_result }}
+    {% for param in scenario.params %}
+    * {{ param }}
+    {% endfor %}
+{% endfor %}
+
+### Негативные
+
+{% for scenario in test_scenarios|selectattr('is_positive', 'equalto', False) %}
+- {{ scenario.priority }}: {{ scenario.subject }}: {{ scenario.description }} -> {{ scenario.expected_result }}
+    {% for param in scenario.params %}
+    * {{ param }}
+    {% endfor %}
+{% endfor %}

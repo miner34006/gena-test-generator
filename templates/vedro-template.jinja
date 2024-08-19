@@ -1,0 +1,35 @@
+import vedro
+from vedro_allure_reporter import allure_labels
+
+from allure_const import MANUAL, Feature, Priority, Story
+
+
+@allure_labels(Feature.{{ suite_data['feature'] }}, Story.{{ suite_data['story'] }}, Priority.{{ priority }}, MANUAL)
+class Scenario(vedro.Scenario):
+    """
+        {{ description }}
+
+        Ожидаемый результат: {{ expected_result }}
+    """
+    subject = '{{ subject }}{% if params %} (param={param}){% endif %}'
+
+    {% if params %}
+        {% for param in params %}
+    @vedro.params("{{param}}")
+        {% endfor %}
+    def __init__(self, param):
+        self.param = param
+
+    {% endif %}
+    def given_(self):
+        pass
+
+    def when_(self):
+        pass
+
+    def then_it_should_(self):
+        assert True
+
+    def and_it_should_(self):
+        assert True
+

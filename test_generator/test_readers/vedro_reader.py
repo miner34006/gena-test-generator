@@ -4,12 +4,7 @@ import os
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
-from test_generator.test_handlers.test_handler import TestHandler
-
-PARAMS_TEMPLATE = """\n
-    $params
-    def __init__(self, param):
-        self.param = param"""
+from test_generator.test_readers.base_reader import BaseReader
 
 
 class ScenarioVisitor(ast.NodeVisitor):
@@ -93,10 +88,8 @@ class ScenarioVisitor(ast.NodeVisitor):
         self.scenario.params = params
 
 
-class VedroHandler(TestHandler):
-    def __init__(self, template: str = None) -> None:
-        super().__init__()
-        self.template = template
+class VedroReader(BaseReader):
+    name = 'VedroReader'
 
     def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario | None]:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -108,46 +101,6 @@ class VedroHandler(TestHandler):
             return '', '', None
         return visitor.feature, visitor.story, visitor.scenario
 
-    def write_test(self, file_path: str, scenario: TestScenario, feature: str, story: str,
-                   force: bool = False, *args, **kwargs) -> None:
-        if not self.template:
-            raise RuntimeError('Template is not defined for writing tests')
-
-        filled_template = self.template.replace('$feature', feature) \
-                                       .replace('$story', story) \
-                                       .replace('$priority', scenario.priority) \
-                                       .replace('$subject', self.__get_subject(scenario)) \
-                                       .replace('$description', scenario.description) \
-                                       .replace('$expected_result', scenario.expected_result) \
-                                       .replace('$params', self.__get_params(scenario))
-        if not force and os.path.exists(file_path):
-            print(f"File already exists: {file_path}")
-            return
-
-        with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(filled_template)
-
-        print(f"Test file created: {file_path}")
-
-    def write_tests(self, dir_path: str, suite: Suite, force: bool = False, *args, **kwargs) -> None:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-
-        for scenario in suite.test_scenarios:
-            test_path = os.path.join(dir_path, self.get_file_name(scenario))
-            self.write_test(
-                file_path=test_path,
-                scenario=scenario,
-                feature=suite.feature,
-                story=suite.story,
-                force=force
-            )
-
-    @staticmethod
-    def get_file_name(scenario: TestScenario) -> str:
-        file_name = scenario.test_name or f"{scenario.subject.strip().replace(' ', '_').replace('-', '_').lower()}.py"
-        return file_name
-
     def read_tests(self, target_dir: str, *args, **kwargs) -> Suite:
         stories = set()
         features = set()
@@ -158,8 +111,8 @@ class VedroHandler(TestHandler):
             if os.path.isdir(os.path.join(target_dir, object_path)):
                 suite = self.read_tests(os.path.join(target_dir, object_path))
                 if suite.test_scenarios:
-                    stories.add(suite.story)
-                    features.add(suite.feature)
+                    stories.add(suite.suite_data['story'])
+                    features.add(suite.suite_data['feature'])
                     scenarios.extend(suite.test_scenarios)
                     continue
 
@@ -185,41 +138,10 @@ class VedroHandler(TestHandler):
         story = ' & '.join(list(stories))
 
         return Suite(
-            feature=feature,
-            story=story,
             test_scenarios=scenarios,
-            api_endpoint=ScenarioVisitor.unknown,
-            api_method=ScenarioVisitor.unknown
+            suite_data={
+                'feature': feature,
+                'story': story,
+                'API': f"{ScenarioVisitor.unknown} {ScenarioVisitor.unknown}",
+            }
         )
-
-    def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
-        if not suite.feature:
-            raise ScenariosValidationError('Feature is not defined')
-        if not suite.story:
-            raise ScenariosValidationError('Story is not defined')
-        if not suite.test_scenarios:
-            raise ScenariosValidationError('No test scenarios defined')
-        for scenario in suite.test_scenarios:
-            if not scenario.priority:
-                raise ScenariosValidationError(f'Priority is not defined for scnenario {scenario}')
-            if not scenario.subject:
-                raise ScenariosValidationError(f'Subject is not defined for scnenario {scenario}')
-
-    def __get_subject(self, scneario: TestScenario) -> str:
-        append_str = " (param = {{param}})"
-
-        subject = scneario.subject
-        if scneario.params and append_str not in scneario.subject:
-            subject = f"{scneario.subject} (param = {{param}})"
-        return subject
-
-    def __get_params(self, scneario: TestScenario, tab_size: int = 4) -> str:
-        if not scneario.params:
-            return ''
-
-        params_str = ''
-        for i, param in enumerate(scneario.params):
-            params_str += f'@vedro.params("{param}")'
-            if i != len(scneario.params) - 1:
-                params_str += '\n' + ' ' * tab_size
-        return PARAMS_TEMPLATE.replace('$params', params_str)

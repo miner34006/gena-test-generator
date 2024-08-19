@@ -1,31 +1,16 @@
-from test_generator.library.priority import Priority
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
 
-SCENARIOS_STR = """## Описание
-
-**Feature** - {feature}
-
-**Story** - {story}
-
-**API** - {api_method} {api_endpoint}
-
-## Сценарии
-
-### Позитивные
-{positive_scenarios_str}
-
-### Негативные
-{negative_scenarios_str}"""
-
 DEFAULT_SUITE = Suite(
-    feature='UserFeature',
-    story='UserStory',
-    api_method='GET',
-    api_endpoint='/path/to/endpoint',
+    suite_data={
+        'feature': 'UserFeature',
+        'story': 'UserStory',
+        'API': 'GET /path/to/endpoint',
+        'another_variable': 'another_value',
+    },
     test_scenarios=[
         TestScenario(
-            priority=Priority.P0.value,
+            priority='P0',
             subject='YOUR SUBJECT 1',
             test_name='',
             description='YOUR DESCRIPTION',
@@ -34,8 +19,8 @@ DEFAULT_SUITE = Suite(
             params=[],
         ),
         TestScenario(
-            priority=Priority.P2.value,
-            subject='YOUR SUBJECT 2',
+            priority='P1',
+            subject='YOUR TRY TO SUBJECT 2',
             test_name='',
             description='YOUR DESCRIPTION',
             expected_result='YOUR EXPECTED RESULT',

@@ -11,7 +11,7 @@ class TestScenario:
     is_positive: bool = field(repr=False)
     params: list[str] = field(default_factory=list, repr=False)
 
-    other_data: dict = field(default_factory=dict, repr=False)
+    scenario_data: dict = field(default_factory=dict, repr=False)
 
     @staticmethod
     def create_empty() -> 'TestScenario':
