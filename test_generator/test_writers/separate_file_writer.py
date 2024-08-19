@@ -32,7 +32,7 @@ class SeparateFileWriter(BaseWriter):
     def write_test(self, file_path: str, scenario: TestScenario,
                    force: bool = False, other_template_data: dict = None, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
-            print(f"File already exists: {file_path}")
+            print(f"⚠️ File already exists: {file_path}")
             return
 
         content = self.template.render(
@@ -42,9 +42,10 @@ class SeparateFileWriter(BaseWriter):
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
-        print(f"Test file created: {file_path}")
+        print(f"✅ Test file created: {file_path}")
 
     def write_tests(self, dir_path: str, suite: Suite, force: bool = False, *args, **kwargs) -> None:
+        print("📝 Generating tests...")
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 

@@ -2,11 +2,11 @@ import argparse
 import os
 from copy import deepcopy
 
+from test_generator.api_handlers.api_file_updater import ApiFileUpdater
 from test_generator.chatgpt_handler import ChatGPTHandler
 from test_generator.library.suite import Suite
 from test_generator.md_handlers import get_default_md_handler, get_md_handler_by_name, get_md_handlers
 from test_generator.md_handlers.const import DEFAULT_SUITE
-from test_generator.swagger_handlers.social_interface_handler import SocialInterfaceHandler
 from test_generator.test_readers.vedro_reader import VedroReader
 from test_generator.test_writers.separate_file_writer import SeparateFileWriter
 
@@ -26,6 +26,8 @@ def parse_arguments():
                         help='Path to the scenario file. Defaults to scenarios.md in the current directory.')
     parser.add_argument('--template-path', type=str, required=False,
                         help='Path to the test template file (used for tests generation).')
+    parser.add_argument('--api-template-path', type=str, required=False,
+                        help='Path to the api template file (used for api generation).')
     parser.add_argument('--target-dir', type=str,
                         help='Directory to put or read generated test files. '
                              'Defaults to the directory of scenarios-path.')
@@ -74,21 +76,17 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     md_handler.validate_scenarios(scenarios_path)
     suite = md_handler.read_data(scenarios_path)
 
-    if args.interface_only:
-        create_api_method_to_interface(suite, args)
-        return
+    if args.interface_only or not args.no_interface:
+        suite = create_api(suite, args)
+        if args.interface_only:
+            return
 
     if args.ai and not all([c.subject for c in suite.test_scenarios]):
-        key = os.environ.get('OPENAI_API_KEY', '')
-        base_url = os.environ.get('OPENAI_URL', '')
-        suite = ChatGPTHandler(key=key, base_url=base_url).update_suite(deepcopy(suite))
+        suite = ChatGPTHandler().update_suite(deepcopy(suite))
 
     test_writer = SeparateFileWriter(template_path)
     test_writer.validate_suite(suite)
     test_writer.write_tests(dir_path=target_dir, suite=suite, force=args.force)
-
-    if not args.no_interface:
-        create_api_method_to_interface(suite, args)
 
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
@@ -97,7 +95,7 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
     vedro_reader = VedroReader()
     suite = vedro_reader.read_tests(target_dir)
     if not suite.test_scenarios:
-        print('No scenarios found in the target directory')
+        print(f'⚠️ No tests found in {target_dir}')
         return
 
     md_handler = get_md_handler_by_name(args.md_format)
@@ -110,30 +108,36 @@ def create_example_scenarios(args: argparse.Namespace) -> None:
     md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)
 
 
-def create_api_method_to_interface(suite: Suite, args: argparse.Namespace) -> None:
+def create_api(suite: Suite, args: argparse.Namespace) -> Suite:
     yaml_path, interface_path = get_interfaces_path(args)
 
     if 'API' not in suite.suite_data:
-        print('API is not defined in the suite data, skipping interface generation')
-        return
+        print('➡️ API is not defined in the suite data, skipping api interface generation\n')
+        return suite
 
     method = suite.suite_data['API'].split(' ')[0]
     path = suite.suite_data['API'].split(' ')[1]
 
     if not method or method is None or method == 'unknown':
-        raise RuntimeError('Method is not defined')
+        print('➡️ API method is not defined, skipping api interface generation\n')
+        return suite
     if not path or path is None or path == 'unknown':
-        raise RuntimeError('Path is not defined')
+        print('➡️ API path is not defined, skipping api interface generation\n')
+        return suite
 
-    swagger_handler = SocialInterfaceHandler(yaml_path)
-    swagger_handler.add_api_method_to_interface(interface_path, method, path)
+    try:
+        api_generator = ApiFileUpdater(yaml_path, args.api_template_path)
+        function_name = api_generator.add_api_method(interface_path, method, path)
+        suite.suite_data['api_function_name'] = function_name
+    except Exception as e:
+        print(f'❌ Failed to generate api interface: {e}\n')
+
+    return suite
 
 
 def main() -> None:
     args = parse_arguments()
 
-    if args.reversed and args.md_example:
-        raise argparse.ArgumentTypeError('Use one argument: --md-example OR --reversed')
     if not args.template_path and not args.reversed and not args.interface_only and not args.md_example:
         raise argparse.ArgumentTypeError('--template-path is required for generating tests')
     if (args.interface_only or (not args.no_interface and (not args.md_example))) and not args.interface_path:
@@ -145,10 +149,13 @@ def main() -> None:
 
     if args.md_example:
         create_example_scenarios(args)
-    elif args.reversed:
+        return
+
+    if args.reversed:
         create_scenarios_from_tests(args)
-    else:
-        create_tests_from_scenarios(args)
+        return
+
+    create_tests_from_scenarios(args)
 
 
 if __name__ == '__main__':

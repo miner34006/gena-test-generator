@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 
 demo/*
+tests/test_data/test_generated/*.md
