@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 
+from schemax_openapi import SchemaData
+
 
 class SchemaHandler(ABC):
-    format_name = 'AbstractSwaggerHandler'
+    format_name = 'AbstractSchemaHandler'
 
     @abstractmethod
-    def add_schema_response_for_method(self, schema_dir_path: str,  method: str, path: str) -> None:
+    def add_schema_response(self, schema_data: SchemaData) -> None:
         """
-        Генерируем схему для роута в указанный путь
+        Генерируем d42 response схему для SchemaData
         """
         ...
