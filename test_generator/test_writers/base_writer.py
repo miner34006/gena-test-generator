@@ -4,22 +4,8 @@ from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
 
 
-class TestHandler(ABC):
-    name = 'AbstractTestHandler'
-
-    @abstractmethod
-    def read_test(self, file_path: str, *args, **kwargs) -> tuple[str, str, TestScenario | None]:
-        """
-        Читаем тест в объект сценария
-        """
-        ...
-
-    @abstractmethod
-    def read_tests(self, target_dir: str, *args, **kwargs) -> Suite:
-        """
-        Читаем тесты в съют
-        """
-        ...
+class BaseWriter(ABC):
+    name = 'AbstractBaseWriter'
 
     @abstractmethod
     def write_test(self, file_path: str, scenario: TestScenario, *args, **kwargs) -> None:

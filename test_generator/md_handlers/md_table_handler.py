@@ -1,15 +1,19 @@
 import os
 import re
+from dataclasses import asdict
 from re import Pattern
 
+from jinja2 import Environment, FileSystemLoader
 from tabulate import tabulate
 
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
 
-from .const import SCENARIOS_STR
 from .md_handler import MdHandler
+
+environment = Environment(loader=FileSystemLoader("test_generator/md_handlers/templates"),
+                          trim_blocks=True, lstrip_blocks=True)
 
 
 class MdTableHandler(MdHandler):
@@ -51,7 +55,7 @@ class MdTableHandler(MdHandler):
 
         priority, description, expected_result, test_name = rows[0]
 
-        subject = test_name.replace('\\', '').strip().lower() if test_name else ''
+        subject = test_name.replace('\\', '').strip() if test_name else ''
 
         if not description:
             raise ScenariosValidationError('Invalid table in file')
@@ -76,19 +80,13 @@ class MdTableHandler(MdHandler):
             file_content = file.read()
 
         suite = Suite.create_empty_suite()
+        variables = self._find_variables(file_content)
+        suite.suite_data = variables
 
         current_section = None
         for line in file_content.split('\n'):
             line = line.strip()
-            if line.startswith('**Feature**'):
-                suite.feature = line.split('-')[1].strip()
-            elif line.startswith('**API**'):
-                api_with_method = line.split('-', 1)[1].strip()
-                suite.api_method = api_with_method.split(' ')[0]
-                suite.api_endpoint = api_with_method.split(' ')[1]
-            elif line.startswith('**Story**'):
-                suite.story = line.split('-')[1].strip()
-            elif line.startswith('### Позитивные'):
+            if line.startswith('### Позитивные'):
                 current_section = 'positive'
             elif line.startswith('### Негативные'):
                 current_section = 'negative'
@@ -100,10 +98,17 @@ class MdTableHandler(MdHandler):
         return suite
 
     def __prepare_table_data_scenarios(self, scenarios: list[TestScenario], is_positive: bool) -> list[list]:
-        return [
-            [scenario.priority, scenario.description, scenario.expected_result, scenario.subject]
-            for scenario in scenarios if scenario.is_positive == is_positive
-        ]
+        new_scenarios = []
+        for scenario in scenarios:
+            if scenario.is_positive == is_positive:
+                description = scenario.description
+                if scenario.params:
+                    description += '<br/>' + '<br/>'.join([f'* {param}' for param in scenario.params])
+                new_scenarios.append([
+                    scenario.priority, description, scenario.expected_result, scenario.subject
+                ])
+
+        return new_scenarios
 
     def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
@@ -117,26 +122,18 @@ class MdTableHandler(MdHandler):
         positive_scenarios_table = tabulate(positive_scenarios, headers, tablefmt="github")
         negative_scenarios_table = tabulate(negative_scenarios, headers, tablefmt="github")
 
-        scenarios_str = SCENARIOS_STR.format(
-            feature=data.feature,
-            story=data.story,
-            positive_scenarios_str=positive_scenarios_table,
-            negative_scenarios_str=negative_scenarios_table,
-            api_method=data.api_method,
-            api_endpoint=data.api_endpoint,
+        content = environment.get_template(f"{self.format_name}.jinja").render(
+            **asdict(data),
+            positive_table=positive_scenarios_table,
+            negative_table=negative_scenarios_table,
         )
-
         with open(file_path, 'w', encoding='utf-8') as file:
-            file.write(scenarios_str)
+            file.write(content)
 
     def validate_scenarios(self, file_path: str, *args, **kwargs) -> None:
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
 
-        if '**Feature**' not in file_content:
-            raise ScenariosValidationError('No "**Feature**" section in file')
-        if '**Story**' not in file_content:
-            raise ScenariosValidationError('No "**Story**" section in file')
         if '### Позитивные' not in file_content:
             raise ScenariosValidationError('No "### Позитивные" section in file')
         if '### Негативные' not in file_content:

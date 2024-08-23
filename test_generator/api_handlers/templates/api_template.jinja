@@ -1,0 +1,28 @@
+
+    async def {{ function_name }}(self{% if function_params %}, {% for param in function_params[:-1] %}{{param}}: str, {% endfor %}{{ function_params[-1] }}: str{% endif %}) -> ClientResponse:
+        url = self._api_url + f"{{ path }}"
+        params = {
+            **self._actor.params,
+            {% if queries %}
+                {% for query in queries %}
+            '{{ query }}': {{ query }},
+                {% endfor %}
+            {% endif %}
+        }
+
+        {% if method == 'POST' or method == 'PUT' %}
+        data = {
+            # CHANGE_ME_TO_NEED_BODY
+        }
+
+        {% endif %}
+        raise NotImplementedError('Need change parameters/body in generated interface')
+        {% if method == 'GET' %}
+        return await API.get(url, params=params, headers=self._actor.metadata)
+        {% elif method == 'POST' %}
+        return await API.post(url, params=params, data=data, headers=self._actor.metadata)
+        {% elif method == 'PUT' %}
+        return await API.put(url, params=params, data=data, headers=self._actor.metadata)
+        {% elif method == 'DELETE' %}
+        return await API.delete(url, params=params, headers=self._actor.metadata)
+        {% endif %}

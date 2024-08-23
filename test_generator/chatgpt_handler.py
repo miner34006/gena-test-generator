@@ -1,4 +1,5 @@
 import json
+import os
 from copy import deepcopy
 
 from openai import OpenAI
@@ -18,7 +19,6 @@ PROMPT = """
         - the response should contain the names of the tests in text format, each name should start on a new line without any symbols except test name;
         - the order of the tests should be preserved;
         - the names of the tests should be in English and use simple English constructions;
-        - the names should be in lower case;
         - the names should be in a consistent style;
         - negative tests should start with try to;
         - the name should not be longer than 12 words;
@@ -33,7 +33,9 @@ PROMPT = """
 
 
 class ChatGPTHandler:
-    def __init__(self, key: str, base_url: str) -> None:
+    def __init__(self, key: str = None, base_url: str = None) -> None:
+        key = key or os.environ.get('OPENAI_API_KEY', '')
+        base_url = base_url or os.environ.get('OPENAI_URL', '')
         self.client = OpenAI(api_key=key, base_url=base_url)
 
     def __test_cases_as_json(self, test_cases: list[TestScenario]) -> list[dict]:
@@ -49,13 +51,13 @@ class ChatGPTHandler:
         ai_updated_cases = self.__generate_test_subjects(deepcopy(original_cases))
 
         while True:
-            print("\nБудут использованы следуюшие названия тестов:")
+            print("\n🔍 Будут использованы следующие названия тестов:")
             for i, test_case in enumerate(ai_updated_cases):
                 print(f"{i+1}. {test_case.subject}")
             print()
 
             print("Введите номера тестов для изменения через запятую (например, '1,3,5') или 'q' для продолжения:")
-            user_input = input("> ")
+            user_input = input(">  ")
             print()
 
             if user_input.lower() == 'q':
@@ -68,10 +70,10 @@ class ChatGPTHandler:
                     if index < 0 or index >= len(ai_updated_cases):
                         raise ValueError('Невалидный индекс теста')
 
-                    print(f"\nВведите новое название для теста {index + 1}.\n"
-                          f"Если вы хотите перегенировать остальные названия на основе измененных данных, "
-                          f"отправьте первым символом знак '!': ")
-                    new_subject = input("> ")
+                    print(f"🔍 Если вы хотите перегенировать остальные названия на основе измененных данных, "
+                          f"отправьте первым символом знак '!'.\n\nВведите новое название для теста {index + 1}:")
+                    new_subject = input(">  ")
+                    print()
 
                     if new_subject.startswith('!'):
                         need_regeneration = True
@@ -86,13 +88,13 @@ class ChatGPTHandler:
                     ai_updated_cases = self.__generate_test_subjects(original_cases)
 
             except (ValueError, IndexError):
-                print("Некорректный ввод. Попробуйте снова.")
+                print("⚠️ Некорректный ввод, попробуйте снова.")
 
         suite.test_scenarios = ai_updated_cases
         return suite
 
     def __generate_test_subjects(self, test_cases: list[TestScenario]) -> list[TestScenario]:
-        print('\nГенерация названий тестов с использованием ChatGPT...')
+        print('⌛ Генерация названий тестов с использованием ChatGPT...')
         prompt = PROMPT + json.dumps(self.__test_cases_as_json(test_cases))
 
         response = self.client.chat.completions.create(
