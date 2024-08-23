@@ -22,11 +22,12 @@ PROMPT = """
         - the names should be in a consistent style;
         - negative tests should start with try to;
         - the name should not be longer than 12 words;
-        - words in a name must be separated by spaces;
         - if the initial list already contains a test with subject, the remaining tests should use similar style and grammatical constructions;
         - to specify certain test conditions (e.g., when an invalid body parameter is passed) use 'when' or 'with', e.g. "with invalid body";
         - if the test object contains the "subject" key, the answer should return to the same test name as in the "subject" field even if the test is negative and does not contain try to;
-        - the names should not contain ordinal numbers, quotation marks, dashes and any symbols except underscore.
+        - the names should not contain ordinal numbers, quotation marks, dashes and any symbols;
+        - the names should be in lower case;
+        - words in a names must be separated by spaces;
 
     Test cases:\n
     """
@@ -70,7 +71,7 @@ class ChatGPTHandler:
                     if index < 0 or index >= len(ai_updated_cases):
                         raise ValueError('Невалидный индекс теста')
 
-                    print(f"🔍 Если вы хотите перегенировать остальные названия на основе измененных данных, "
+                    print(f"🔍 Если вы хотите перегенерировать остальные названия на основе измененных данных, "
                           f"отправьте первым символом знак '!'.\n\nВведите новое название для теста {index + 1}:")
                     new_subject = input(">  ")
                     print()
