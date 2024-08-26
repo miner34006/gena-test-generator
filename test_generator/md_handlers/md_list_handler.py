@@ -9,7 +9,8 @@ from test_generator.library.suite import Suite
 
 from .md_handler import MdHandler
 
-environment = Environment(loader=FileSystemLoader("test_generator/md_handlers/templates"),
+templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+environment = Environment(loader=FileSystemLoader(templates_dir),
                           trim_blocks=True, lstrip_blocks=True)
 
 
