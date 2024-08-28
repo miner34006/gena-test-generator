@@ -72,7 +72,8 @@ class ApiFileUpdater(ApiGenerator):
             raise ApiGenerationError(f"Template file not found: {template_path}")
 
         if not template_path:
-            template_path = 'test_generator/api_handlers/templates/api_template.jinja'
+            templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+            template_path = f'{templates_dir}/api_template.jinja'
 
         template_dir = os.path.dirname(template_path)
         env = Environment(
