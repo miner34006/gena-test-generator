@@ -33,7 +33,7 @@ class ApiFileUpdater(ApiGenerator):
         with open(file_path, 'a', encoding='utf-8') as file:
             file.write(api_method_str)
 
-        print(Colors.success(f"✅ Api interface for {gena_data.http_method.upper()} {gena_data.api_path} "
+        print(Colors.success(f"✅  Api interface for {gena_data.http_method.upper()} {gena_data.api_path} "
               f"was generated in {file_path}"))
         return gena_data.interface_method
 

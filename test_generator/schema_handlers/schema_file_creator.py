@@ -20,6 +20,6 @@ class SchemaFileCreator(SchemaGenerator):
             file.write(f'from d42 import optional, '
                        f'schema\n\n\n\n{gena_data.response_schema_name} = {gena_data.response_schema}')
 
-        print(Colors.success(f"✅ Response schema for {gena_data.response_schema_name} "
-              f"was generated in {schema_file}\n"))
+        print(Colors.success(f"✅  Response schema for {gena_data.response_schema_name} "
+              f"was generated in {schema_file}"))
         return gena_data.response_schema_name

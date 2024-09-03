@@ -43,7 +43,7 @@ class SeparateFileWriter(BaseWriter):
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
-        print(Colors.success(f"✅ Test file created: {file_path}"))
+        print(Colors.success(f"✅  Test file created: {file_path}"))
 
     def write_tests(self, dir_path: str, suite: Suite, force: bool = False, *args, **kwargs) -> None:
         print(Colors.bold(f"📝 Generating tests..."))
