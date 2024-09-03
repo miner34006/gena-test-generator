@@ -8,7 +8,7 @@ from .schema_generator import SchemaGenerator
 class SchemaFileCreator(SchemaGenerator):
 
     def generate_response_schema(self, schemas_dir: str, gena_data: GenaData) -> str | None:
-        print(Colors.bold("\n⌛ Generating response schema from swagger..."))
+        print(Colors.bold("⌛  Generating response schema from swagger..."))
 
         schema_file = f'{schemas_dir}/{gena_data.interface_method}.py'
 

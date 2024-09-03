@@ -10,12 +10,20 @@ class Colors:
     UNDERLINE = '\033[4m'
 
     @staticmethod
+    def blue(message):
+        return f'{Colors.OK_BLUE}{message}{Colors.END_C}'
+
+    @staticmethod
     def error(message):
         return f'{Colors.FAIL}{message}{Colors.END_C}'
 
     @staticmethod
     def warning(message):
         return f'{Colors.WARNING}{message}{Colors.END_C}'
+
+    @staticmethod
+    def header(message):
+        return f'{Colors.HEADER}{message}{Colors.END_C}'
 
     @staticmethod
     def success(message):

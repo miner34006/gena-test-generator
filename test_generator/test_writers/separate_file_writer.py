@@ -19,7 +19,7 @@ class SeparateFileWriter(BaseWriter):
 
     def __get_template(self, template_path: str) -> Template:
         if not os.path.exists(template_path):
-            raise ScenariosValidationError(f"Template file not found: {template_path}")
+            raise ScenariosValidationError(Colors.error(f"Template file not found: {template_path}"))
 
         template_dir = os.path.dirname(template_path)
         env = Environment(
@@ -65,7 +65,7 @@ class SeparateFileWriter(BaseWriter):
 
     def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
         if not suite.test_scenarios:
-            raise ScenariosValidationError('No test scenarios defined in suite')
+            raise ScenariosValidationError(Colors.error('No test scenarios defined in suite'))
 
     @staticmethod
     def get_file_name(scenario: TestScenario) -> str:

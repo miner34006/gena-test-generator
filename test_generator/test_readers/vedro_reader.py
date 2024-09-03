@@ -1,6 +1,7 @@
 import ast
 import os
 
+from test_generator.library.colors import Colors
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
@@ -128,11 +129,11 @@ class VedroReader(BaseReader):
                 features.add(feature)
 
         if (len(features) > 2) or (len(features) == 2 and ScenarioVisitor.unknown not in features):
-            raise ScenariosValidationError(f"Multiple features detected: {features}, "
-                                           "can't create a single scenarios file.")
+            raise ScenariosValidationError(Colors.error(f"Multiple features detected: {features}, "
+                                           "can't create a single scenarios file."))
         if (len(stories) > 2) or (len(stories) == 2 and ScenarioVisitor.unknown not in stories):
-            raise ScenariosValidationError(f"Multiple stories detected: {stories}, "
-                                           "can't create a single scenarios file.")
+            raise ScenariosValidationError(Colors.error(f"Multiple stories detected: {stories}, "
+                                           "can't create a single scenarios file."))
 
         feature = ' & '.join(list(features))
         story = ' & '.join(list(stories))

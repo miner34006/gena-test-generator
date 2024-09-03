@@ -16,11 +16,11 @@ class ApiFileUpdater(ApiGenerator):
         self.template = self.__get_template(api_template_path)
 
     def add_api_method(self, file_path: str, gena_data: GenaData) -> str:
-        print(Colors.bold('\n⌛ Generating api interface from swagger...'))
+        print(Colors.bold('⌛  Generating api interface from swagger...'))
 
         with open(file_path, 'r', encoding='utf-8') as file:
             if f"def {gena_data.interface_method}(" in file.read():
-                print(Colors.warning(f"⚠️ Method {gena_data.interface_method} already exists in {file_path}\n"))
+                print(Colors.warning(f"⚠️ Method {gena_data.interface_method} already exists in {file_path}"))
                 return gena_data.interface_method
 
         api_method_str = self.template.render(
@@ -33,8 +33,8 @@ class ApiFileUpdater(ApiGenerator):
         with open(file_path, 'a', encoding='utf-8') as file:
             file.write(api_method_str)
 
-        print(Colors.success(f"✅ {gena_data.http_method.upper()} {gena_data.api_path} "
-              f"interface was generated in {file_path}\n"))
+        print(Colors.success(f"✅ Api interface for {gena_data.http_method.upper()} {gena_data.api_path} "
+              f"was generated in {file_path}"))
         return gena_data.interface_method
 
     def __get_template(self, template_path: str = None) -> Template:
