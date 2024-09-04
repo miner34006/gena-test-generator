@@ -1,8 +1,8 @@
 import os.path
 
-from ..library.colors import Colors
-from ..library.gena_data import GenaData
-from .schema_generator import SchemaGenerator
+from test_generator.library.colors import Colors
+from test_generator.library.gena_data import GenaData
+from test_generator.schema_handlers.schema_generator import SchemaGenerator
 
 
 class SchemaFileCreator(SchemaGenerator):

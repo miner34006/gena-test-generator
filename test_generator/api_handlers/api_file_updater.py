@@ -4,8 +4,8 @@ from jinja2 import Environment, FileSystemLoader, Template
 
 from test_generator.library.errors import ApiGenerationError
 
-from ..library.colors import Colors
-from ..library.gena_data import GenaData
+from test_generator.library.colors import Colors
+from test_generator.library.gena_data import GenaData
 from .api_generator import ApiGenerator
 
 

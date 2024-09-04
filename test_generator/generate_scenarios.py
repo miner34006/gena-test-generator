@@ -27,7 +27,7 @@ def valid_md_format(md_format: str) -> str:
 
 
 def valid_generate_components(generate: str) -> str:
-    expected_components = GenerateComponent.list()
+    expected_components = list(GenerateComponent)
     generated_components = generate.split(',')
     for comp in generated_components:
         if comp not in expected_components:
@@ -63,8 +63,8 @@ def parse_arguments():
                                                                 'Tests should have same story and feature.')
     parser.add_argument('--generate', type=valid_generate_components,
                         help='\nList of generate. '
-                             f'Available components are: {", ".join(GenerateComponent.list())}.\n'
-                             f'Example: {",".join(GenerateComponent.list())} - generate all, '
+                             f'Available components are: {", ".join(list(GenerateComponent))}.\n'
+                             f'Example: {",".join(list(GenerateComponent))} - generate all, '
                              f'{GenerateComponent.TESTS} - generate only tests. \n'
                              'Delimiter - ","',
                         default=GenerateComponent.TESTS)
@@ -88,10 +88,9 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
 
     generate_components: list[str] = args.generate.split(',')
 
-    # Хотим чтобы TESTS всегда выполнялся первым
     if GenerateComponent.TESTS in generate_components:
         generate_components.remove(GenerateComponent.TESTS)
-        generate_components.insert(0, GenerateComponent.TESTS)
+        generate_components.insert(len(generate_components), GenerateComponent.TESTS)
 
     for component in generate_components:
 
@@ -152,11 +151,14 @@ def create_api(suite: Suite, args: argparse.Namespace) -> Suite:
     yaml_path = get_yaml_path(args)
     interface_path = get_interface_path(args)
 
-    if not suite.applicable_for_api_or_schemas():
+    if not suite.is_applicable_for_api_or_schemas():
         return suite
 
+    method = suite.suite_data['API'].split(' ')[0]
+    path = suite.suite_data['API'].split(' ')[1]
+
     try:
-        gena_data = get_gena_data_for_method_and_path(yaml_path, suite.suite_data['method'], suite.suite_data['path'])
+        gena_data = get_gena_data_for_method_and_path(yaml_path, method, path)
         api_generator = ApiFileUpdater(args.api_template_path)
         function_name = api_generator.add_api_method(interface_path, gena_data)
         suite.suite_data['api_function_name'] = function_name
@@ -169,11 +171,14 @@ def create_schemas(suite: Suite, args: argparse.Namespace) -> Suite:
     yaml_path = get_yaml_path(args)
     schemas_path = get_schemas_dir_path(args)
 
-    if not suite.applicable_for_api_or_schemas():
+    if not suite.is_applicable_for_api_or_schemas():
         return suite
 
+    method = suite.suite_data['API'].split(' ')[0]
+    path = suite.suite_data['API'].split(' ')[1]
+
     try:
-        gena_data = get_gena_data_for_method_and_path(yaml_path, suite.suite_data['method'], suite.suite_data['path'])
+        gena_data = get_gena_data_for_method_and_path(yaml_path, method, path)
         schema_generator = SchemaFileCreator()
         response_schema_name = schema_generator.generate_response_schema(schemas_path, gena_data)
         suite.suite_data['response_schema_name'] = response_schema_name

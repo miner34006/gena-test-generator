@@ -7,7 +7,7 @@ from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
 
-from ..library.colors import Colors
+from test_generator.library.colors import Colors
 from .md_handler import MdHandler
 
 templates_dir = os.path.join(os.path.dirname(__file__), 'templates')

@@ -14,7 +14,7 @@ class Suite:
     def create_empty_suite() -> "Suite":
         return Suite(test_scenarios=[])
 
-    def applicable_for_api_or_schemas(self) -> bool:
+    def is_applicable_for_api_or_schemas(self) -> bool:
         if 'API' not in self.suite_data:
             print(Colors.warning('➡️ API is not defined in the suite data, skipping generation...'))
             return False
@@ -25,11 +25,9 @@ class Suite:
         if not method or method is None or method == 'unknown':
             print(Colors.warning('➡️ API method is not defined, skipping generation...'))
             return False
-        self.suite_data['method'] = method
 
         if not path or path is None or path == 'unknown':
             print(Colors.warning('➡️ API path is not defined, skipping generation'))
             return False
-        self.suite_data['path'] = path
 
         return True
