@@ -23,7 +23,8 @@ setuptools.setup(
     url="https://github.com/miner34006/gena-test-generator",
     python_requires=">=3.7",
     packages=find_packages(exclude=["tests", "tests.*"]),
-    package_data={"test_generator": ["py.typed"]},
+    include_package_data=True,
+    package_data={"test_generator": ["py.typed", "**/*.jinja"]},
     install_requires=find_required(),
     tests_require=find_dev_required(),
     entry_points={

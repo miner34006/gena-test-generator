@@ -6,6 +6,7 @@ from re import Pattern
 from jinja2 import Environment, FileSystemLoader
 from tabulate import tabulate
 
+from test_generator.library.colors import Colors
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
@@ -52,14 +53,14 @@ class MdTableHandler(MdHandler):
         rows = re.findall(self.__get_rows_pattern(), line)
 
         if not rows:
-            raise ScenariosValidationError('Invalid rows in table')
+            raise ScenariosValidationError(Colors.error('Invalid rows in table'))
 
         priority, description, expected_result, test_name = rows[0]
 
         subject = test_name.replace('\\', '').strip() if test_name else ''
 
         if not description:
-            raise ScenariosValidationError('Invalid table in file')
+            raise ScenariosValidationError(Colors.error('Invalid table in file'))
 
         description = description.replace('<br/>', '')
         split_description = description.split('*')
@@ -113,7 +114,7 @@ class MdTableHandler(MdHandler):
 
     def write_data(self, file_path: str, data: Suite, force: bool, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
-            raise FileExistsError(f'File "{file_path}" already exists')
+            raise FileExistsError(Colors.error(f'File "{file_path}" already exists'))
 
         headers = ["Приоритет", "Описание", "Ожидаемый результат", "Название теста"]
 
@@ -136,10 +137,10 @@ class MdTableHandler(MdHandler):
             file_content = file.read()
 
         if '### Позитивные' not in file_content:
-            raise ScenariosValidationError('No "### Позитивные" section in file')
+            raise ScenariosValidationError(Colors.error('No "### Позитивные" section in file'))
         if '### Негативные' not in file_content:
-            raise ScenariosValidationError('No "### Негативные" section in file')
+            raise ScenariosValidationError(Colors.error('No "### Негативные" section in file'))
 
         tables = re.findall(self.__get_table_pattern(), file_content)
         if len(tables) < 1:
-            raise ScenariosValidationError('Failed to parse any table')
+            raise ScenariosValidationError(Colors.error('Failed to parse any table'))

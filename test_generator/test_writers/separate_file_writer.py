@@ -3,6 +3,7 @@ from dataclasses import asdict
 
 from jinja2 import Environment, FileSystemLoader, Template
 
+from test_generator.library.colors import Colors
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
@@ -18,7 +19,7 @@ class SeparateFileWriter(BaseWriter):
 
     def __get_template(self, template_path: str) -> Template:
         if not os.path.exists(template_path):
-            raise ScenariosValidationError(f"Template file not found: {template_path}")
+            raise ScenariosValidationError(Colors.error(f"Template file not found: {template_path}"))
 
         template_dir = os.path.dirname(template_path)
         env = Environment(
@@ -32,7 +33,7 @@ class SeparateFileWriter(BaseWriter):
     def write_test(self, file_path: str, scenario: TestScenario,
                    force: bool = False, other_template_data: dict = None, *args, **kwargs) -> None:
         if not force and os.path.exists(file_path):
-            print(f"⚠️ File already exists: {file_path}")
+            print(Colors.warning(f"⚠️ File already exists: {file_path}"))
             return
 
         content = self.template.render(
@@ -42,10 +43,10 @@ class SeparateFileWriter(BaseWriter):
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
 
-        print(f"✅ Test file created: {file_path}")
+        print(Colors.success(f"✅  Test file created: {file_path}"))
 
     def write_tests(self, dir_path: str, suite: Suite, force: bool = False, *args, **kwargs) -> None:
-        print("📝 Generating tests...")
+        print(Colors.bold(f"📝 Generating tests..."))
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
@@ -64,7 +65,7 @@ class SeparateFileWriter(BaseWriter):
 
     def validate_suite(self, suite: Suite, *args, **kwargs) -> None:
         if not suite.test_scenarios:
-            raise ScenariosValidationError('No test scenarios defined in suite')
+            raise ScenariosValidationError(Colors.error('No test scenarios defined in suite'))
 
     @staticmethod
     def get_file_name(scenario: TestScenario) -> str:
