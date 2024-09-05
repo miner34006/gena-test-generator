@@ -30,7 +30,6 @@ def get_target_dir_path(args: argparse.Namespace) -> str:
     if args.target_dir:
         return os.path.join(current_dir, args.target_dir)
     else:
-        print(Colors.warning(f'⚠️ Arg target_dir is missing in arguments. Test will be generate nearby scenarios.'))
         scenarios_path = get_scenarios_path(args)
         return os.path.dirname(scenarios_path)
 

@@ -4,8 +4,14 @@ from copy import deepcopy
 
 from test_generator.api_handlers.api_file_updater import ApiFileUpdater
 from test_generator.chatgpt_handler import ChatGPTHandler
-from test_generator.helpers.path import get_yaml_path, get_interface_path, get_schemas_dir_path, get_template_path, \
-    get_scenarios_path, get_target_dir_path
+from test_generator.helpers.path import (
+    get_interface_path,
+    get_scenarios_path,
+    get_schemas_dir_path,
+    get_target_dir_path,
+    get_template_path,
+    get_yaml_path,
+)
 from test_generator.library.colors import Colors
 from test_generator.library.gena_data import get_gena_data_for_method_and_path
 from test_generator.library.generate_component import GenerateComponent
@@ -32,7 +38,7 @@ def valid_generate_components(generate: str) -> str:
     for comp in generated_components:
         if comp not in expected_components:
             print(Colors.error(f'❌  Failed to generate - {comp.upper()}, \n'
-                               f'❌  Should be contains ONLY - {", ".join(GenerateComponent.list())}.\n'
+                               f'❌  Should be contains ONLY - {", ".join(list(GenerateComponent))}.\n'
                                f'❌  Delimiter - ",".\n'))
     return generate
 
@@ -79,7 +85,6 @@ def parse_arguments():
 
 
 def create_tests_from_scenarios(args: argparse.Namespace) -> None:
-    print(Colors.blue('💾 Generating tests from scenarios'))
     scenarios_path = get_scenarios_path(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
@@ -95,23 +100,22 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
     for component in generate_components:
 
         if component == GenerateComponent.TESTS:
-            print(Colors.header(f"\n➡️ {GenerateComponent.TESTS.upper()}"))
+            print()
             suite = create_tests(suite, args)
-            print(Colors.header(f"➡️ {GenerateComponent.TESTS.upper()}\n"))
+            print()
 
         if component == GenerateComponent.INTERFACE:
-            print(Colors.header(f"\n➡️ {GenerateComponent.INTERFACE.upper()}"))
+            print()
             suite = create_api(suite, args)
-            print(Colors.header(f"➡️ {GenerateComponent.INTERFACE.upper()}\n"))
+            print()
 
         if component == GenerateComponent.SCHEMAS:
-            print(Colors.header(f"\n➡️ {GenerateComponent.SCHEMAS.upper()}"))
+            print()
             suite = create_schemas(suite, args)
-            print(Colors.header(f"➡️ {GenerateComponent.SCHEMAS.upper()}\n"))
+            print()
 
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
-    print(Colors.blue('💾 Generating scenarios from tests'))
     scenarios_path = get_scenarios_path(args)
     target_dir = get_target_dir_path(args)
 
@@ -126,7 +130,6 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
 
 def create_example_scenarios(args: argparse.Namespace) -> None:
-    print(Colors.blue('💾 Generating example scenarios'))
     scenarios_path = get_scenarios_path(args)
 
     md_handler = get_md_handler_by_name(args.md_format)
@@ -136,7 +139,6 @@ def create_example_scenarios(args: argparse.Namespace) -> None:
 def create_tests(suite: Suite, args: argparse.Namespace) -> Suite:
     template_path = get_template_path(args)
     target_dir = get_target_dir_path(args)
-
 
     if args.ai and not all([c.subject for c in suite.test_scenarios]):
         suite = ChatGPTHandler().update_suite(deepcopy(suite))

@@ -2,10 +2,10 @@ import os.path
 
 from jinja2 import Environment, FileSystemLoader, Template
 
-from test_generator.library.errors import ApiGenerationError
-
 from test_generator.library.colors import Colors
+from test_generator.library.errors import ApiGenerationError
 from test_generator.library.gena_data import GenaData
+
 from .api_generator import ApiGenerator
 
 
