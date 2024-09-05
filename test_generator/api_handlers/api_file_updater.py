@@ -39,7 +39,7 @@ class ApiFileUpdater(ApiGenerator):
 
     def __get_template(self, template_path: str = None) -> Template:
         if template_path and not os.path.exists(template_path):
-            raise ApiGenerationError(Colors.error(f"Template file not found: {template_path}"))
+            raise ApiGenerationError(f"Template file not found: {template_path}")
 
         if not template_path:
             templates_dir = os.path.join(os.path.dirname(__file__), 'templates')

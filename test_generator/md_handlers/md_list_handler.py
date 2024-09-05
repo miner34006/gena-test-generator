@@ -3,7 +3,6 @@ from dataclasses import asdict
 
 from jinja2 import Environment, FileSystemLoader
 
-from test_generator.library.colors import Colors
 from test_generator.library.errors import ScenariosValidationError
 from test_generator.library.scenario import TestScenario
 from test_generator.library.suite import Suite
@@ -75,9 +74,9 @@ class MdListHandler(MdHandler):
             file_content = file.read()
 
         if '### Позитивные' not in file_content:
-            raise ScenariosValidationError(Colors.error('No "### Позитивные" section in file'))
+            raise ScenariosValidationError('No "### Позитивные" section in file')
         if '### Негативные' not in file_content:
-            raise ScenariosValidationError(Colors.error('No "### Негативные" section in file'))
+            raise ScenariosValidationError('No "### Негативные" section in file')
 
         lines_with_scenarios_found = False
         lines = file_content.split('\n')
@@ -88,10 +87,9 @@ class MdListHandler(MdHandler):
                 self.__validate_line(line)
 
         if not lines_with_scenarios_found:
-            raise ScenariosValidationError(Colors.error('No scenarios with expected format were found in file'))
+            raise ScenariosValidationError('No scenarios with expected format were found in file')
 
     def __validate_line(self, line: str) -> None:
         if line.count(':') > 2 or '->' not in line or line.count('->') > 1 or line.count(':') == 0:
-            raise ScenariosValidationError(Colors.error(f'Failed to parse line "{line}". '
-                                                        'Invalid line format, line should be like:'
-                                                        '`- priority: [subject]: description -> expected result`'))
+            raise ScenariosValidationError(f'Failed to parse line "{line}". Invalid line format, line should be like: '
+                                           '`- priority: [subject]: description -> expected result`')
