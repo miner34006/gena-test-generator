@@ -27,7 +27,7 @@ def valid_md_format(md_format: str) -> str:
     md_handlers = get_md_handlers()
     if md_format not in [f.format_name for f in md_handlers]:
         valid_formats = ','.join([f.format_name for f in md_handlers])
-        raise argparse.ArgumentTypeError(f'❌  Failed to find format, available formats are: {valid_formats}')
+        raise argparse.ArgumentTypeError(f'Failed to find format, available formats are: {valid_formats}')
     return md_format
 
 
@@ -164,7 +164,7 @@ def create_api(suite: Suite, args: argparse.Namespace) -> Suite:
         function_name = api_generator.add_api_method(interface_path, gena_data)
         suite.suite_data['api_function_name'] = function_name
     except Exception as e:
-        print(e)
+        print(f'Failed to generate api interface: {e}')
     return suite
 
 
@@ -184,7 +184,7 @@ def create_schemas(suite: Suite, args: argparse.Namespace) -> Suite:
         response_schema_name = schema_generator.generate_response_schema(schemas_path, gena_data)
         suite.suite_data['response_schema_name'] = response_schema_name
     except Exception as e:
-        print(e)
+        print(f'Failed to generate schemas: {e}')
     return suite
 
 
