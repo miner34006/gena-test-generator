@@ -36,7 +36,7 @@ def valid_generate_components(generate: str) -> str:
     generated_components = generate.split(',')
     for comp in generated_components:
         if comp not in expected_components:
-            print(Colors.error(f'❌  Failed to generate - {comp.upper()},  \n'
+            print(Colors.error(f'❌  Failed to generate - {comp},  \n'
                                f'❌  Should be contains ONLY - {", ".join(list(GenerateComponent))}.\n'
                                f'❌  Delimiter - ", ".\n'))
     return generate
