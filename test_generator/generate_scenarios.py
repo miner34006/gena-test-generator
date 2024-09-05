@@ -27,8 +27,7 @@ def valid_md_format(md_format: str) -> str:
     md_handlers = get_md_handlers()
     if md_format not in [f.format_name for f in md_handlers]:
         valid_formats = ','.join([f.format_name for f in md_handlers])
-        raise argparse.ArgumentTypeError(Colors.error(f'❌  Failed to find format, '
-                                                      f'available formats are: {valid_formats}'))
+        raise argparse.ArgumentTypeError(f'Failed to find format, available formats are: {valid_formats}')
     return md_format
 
 
@@ -37,9 +36,9 @@ def valid_generate_components(generate: str) -> str:
     generated_components = generate.split(',')
     for comp in generated_components:
         if comp not in expected_components:
-            print(Colors.error(f'❌  Failed to generate - {comp.upper()}, \n'
+            print(Colors.error(f'❌  Failed to generate - "{comp}",  \n'
                                f'❌  Should be contains ONLY - {", ".join(list(GenerateComponent))}.\n'
-                               f'❌  Delimiter - ",".\n'))
+                               f'❌  Delimiter - ", ".\n'))
     return generate
 
 
@@ -116,7 +115,7 @@ def create_tests_from_scenarios(args: argparse.Namespace) -> None:
 
 
 def create_scenarios_from_tests(args: argparse.Namespace) -> None:
-    scenarios_path = get_scenarios_path(args)
+    scenarios_path = os.path.join(os.getcwd(), 'scenarios.md')
     target_dir = get_target_dir_path(args)
 
     vedro_reader = VedroReader()
@@ -130,7 +129,7 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
 
 def create_example_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path = get_scenarios_path(args)
+    scenarios_path = os.path.join(os.getcwd(), 'scenarios.md')
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)
@@ -165,7 +164,7 @@ def create_api(suite: Suite, args: argparse.Namespace) -> Suite:
         function_name = api_generator.add_api_method(interface_path, gena_data)
         suite.suite_data['api_function_name'] = function_name
     except Exception as e:
-        print(Colors.error(f'❌  Failed to generate api interface: {e}'))
+        print(f'Failed to generate api interface: {e}')
     return suite
 
 
@@ -185,7 +184,7 @@ def create_schemas(suite: Suite, args: argparse.Namespace) -> Suite:
         response_schema_name = schema_generator.generate_response_schema(schemas_path, gena_data)
         suite.suite_data['response_schema_name'] = response_schema_name
     except Exception as e:
-        print(Colors.error(f'❌ Failed to generate response schema: {e}\n'))
+        print(f'Failed to generate schemas: {e}')
     return suite
 
 
