@@ -57,7 +57,7 @@ def parse_arguments():
     parser.add_argument('--md-example', action='store_true',
                         help="Generate new md-file with scenarios.", default=False)
     parser.add_argument('--ai', action='store_true', help='Use AI to generate test file names and '
-                                                          'subjects for tests (if not exsists).')
+                                                          'subjects for tests (if not exists).')
     parser.add_argument('--md-format', type=valid_md_format,
                         help="Name of the format to use. "
                              "Available scenarios.md formats are: "
@@ -129,7 +129,8 @@ def create_scenarios_from_tests(args: argparse.Namespace) -> None:
 
 
 def create_example_scenarios(args: argparse.Namespace) -> None:
-    scenarios_path = os.path.join(os.getcwd(), 'scenarios.md')
+    target_dir = get_target_dir_path(args)
+    scenarios_path = os.path.join(target_dir, 'scenarios.md')
 
     md_handler = get_md_handler_by_name(args.md_format)
     md_handler.write_data(scenarios_path, DEFAULT_SUITE, force=args.force)

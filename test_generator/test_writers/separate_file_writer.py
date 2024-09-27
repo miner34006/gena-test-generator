@@ -1,4 +1,5 @@
 import os
+import uuid
 from dataclasses import asdict
 
 from jinja2 import Environment, FileSystemLoader, Template
@@ -69,5 +70,8 @@ class SeparateFileWriter(BaseWriter):
 
     @staticmethod
     def get_file_name(scenario: TestScenario) -> str:
+        if not scenario.test_name and not scenario.subject:
+            print('⚠️ Test subject was not found in scenarios file, generating random file name')
+            return f'{uuid.uuid4().hex[:8]}.py'
         file_name = scenario.test_name or f"{scenario.subject.strip().replace(' ', '_').replace('-', '_').lower()}.py"
         return file_name
