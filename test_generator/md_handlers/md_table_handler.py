@@ -135,10 +135,10 @@ class MdTableHandler(MdHandler):
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
 
-        if '### Позитивные' not in file_content:
-            raise ScenariosValidationError('No "### Позитивные" section in file')
-        if '### Негативные' not in file_content:
-            raise ScenariosValidationError('No "### Негативные" section in file')
+        has_positive = '### Позитивные' in file_content
+        has_negative = '### Негативные' in file_content
+        if not has_positive and not has_negative:
+            raise ScenariosValidationError('No "### Позитивные" and "### Негативные" sections in file')
 
         tables = re.findall(self.__get_table_pattern(), file_content)
         if len(tables) < 1:

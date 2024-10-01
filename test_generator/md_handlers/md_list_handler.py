@@ -73,10 +73,10 @@ class MdListHandler(MdHandler):
         with open(file_path, 'r', encoding='utf-8') as file:
             file_content = file.read()
 
-        if '### Позитивные' not in file_content:
-            raise ScenariosValidationError('No "### Позитивные" section in file')
-        if '### Негативные' not in file_content:
-            raise ScenariosValidationError('No "### Негативные" section in file')
+        has_positive = '### Позитивные' in file_content
+        has_negative = '### Негативные' in file_content
+        if not has_positive and not has_negative:
+            raise ScenariosValidationError('No "### Позитивные" and "### Негативные" sections in file')
 
         lines_with_scenarios_found = False
         lines = file_content.split('\n')

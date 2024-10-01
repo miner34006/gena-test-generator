@@ -1,5 +1,6 @@
 import json
 import os
+import readline  # noqa: F401
 from copy import deepcopy
 
 from openai import OpenAI
@@ -37,6 +38,9 @@ class ChatGPTHandler:
     def __init__(self, key: str = None, base_url: str = None) -> None:
         key = key or os.environ.get('OPENAI_API_KEY', '')
         base_url = base_url or os.environ.get('OPENAI_URL', '')
+        if not key or not base_url:
+            raise ValueError('OpenAI key and base URL must be provided to use AI')
+
         self.client = OpenAI(api_key=key, base_url=base_url)
 
     def __test_cases_as_json(self, test_cases: list[TestScenario]) -> list[dict]:
